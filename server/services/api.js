@@ -1,9 +1,12 @@
+// import { createConnection } from 'mysql';
 const mysql = require('mysql');
 
-class Database {
+// export default class Api {
+module.exports = class Api {
 
     constructor(tablename) {
         this.db = mysql.createConnection({
+        // this.db = createConnection({
             host: 'localhost',
             user: 'enger',
             password: 'Dr@g0nfly',
@@ -17,17 +20,24 @@ class Database {
         this.fields = fields.join();
         this.conditions = conditions.join(' AND ');
 
-        if (this.conditions) return this._getWhere();
-        else {
-            if (!id) return this._getAll();
-            else if (id) return this._getById(id);
-            else return false;
+        if (this.conditions) {
+            return this._getWhere();
+        } else {
+            if (!id) {
+                return this._getAll();
+            } else if (id) {
+                return this._getById(id);
+            } else {
+                return false;
+            }
         }
     }
 
     create(data) {
         if (!data) return false;
         let sql = `INSERT INTO ${this.tablename} SET ?`;
+
+        this.db.connect();
 
         this.db.beginTransaction((error) => {
             if (error) throw error;
@@ -49,7 +59,9 @@ class Database {
                     if (result.affectedRows > 0) return result.insertId;
                 });
             });
-        });        
+        });
+        
+        this.db.end();
     }
 
     update(id, data = {}) {
@@ -66,6 +78,8 @@ class Database {
         }, '');
         
         let sql = `UPDATE ${this.tablename} SET ${fields} WHERE id = ${id};`;
+
+        this.db.connect();
 
         this.db.beginTransaction((error) => {
             if (error) throw error;
@@ -87,6 +101,8 @@ class Database {
                 });
             });
         });
+
+        this.db.end();
     }
 
     delete(id = null) {
@@ -101,10 +117,14 @@ class Database {
     _getAll() {
         let sql = `SELECT * FROM ${this.tablename};`;
 
-        this.db.query(sql, (error, rows) => {
+        this.db.connect();
+
+        this.db.query(sql, (error, result) => {
             if (error) throw error;
-            return console.log(rows);
+            return console.log(result);
         });
+
+        this.db.end();
     }
 
     _getById(id) {
@@ -113,17 +133,22 @@ class Database {
 
         if (this.fields === '') {
             sql = `SELECT * FROM ${this.tablename}` 
-                + `WHERE id = ${id};`;
+                + ` WHERE id = ${id};`;
         } else {
             sql = `SELECT ${this.tablename}.id, ${this.fields}`
                 + ` FROM ${this.tablename}`
                 + ` WHERE id = ${id};`;
         }
-        this.db.query(sql, (error, rows) => {
+
+        this.db.connect();
+
+        this.db.query(sql, (error, result) => {
             if (error) throw error;
 
-            return console.log(rows);
+            return result;
         });
+
+        this.db.end();
     }
 
     _getWhere() {
@@ -138,16 +163,22 @@ class Database {
                 + ` WHERE ${this.conditions};`;
         }
 
-        this.db.query(sql, (error, rows) => {
+        this.db.connect();
+        
+        this.db.query(sql, (error, result) => {
             if (error) throw error;
 
-            return (rows);
+            return (result);
         });
+
+        this.db.end();
     }
 
     _delete(id) {
         if (this.idToDelete !== id) return false;
         let sql = `DELETE FROM ${this.tablename} WHERE id = ${id} LIMIT 1;`;
+
+        this.db.connect();
         
         this.db.beginTransaction((error) => {
             if (error) throw error;
@@ -166,11 +197,12 @@ class Database {
                         });
                     }
 
-                    console.log('Deleted: ' + id);
                     if (result.affectedRows === 1) return true;
                     else return false;
                 });
             });
         });
+
+        this.db.end();
     }
 }

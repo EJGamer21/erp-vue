@@ -106,6 +106,7 @@ import { EventBus } from "../EventBus";
 import axios from "axios";
 import swal from "sweetalert";
 import { toastConfigs, showAlert } from "../mixins/mixin";
+const Api = require('../backend/api');
 
 export default {
   name: "UsersTable",
@@ -116,23 +117,27 @@ export default {
     };
   },
   beforeMount() {
-    axios
-      .get("/users/get")
-      .then(response => {
-        let usuarios = response.data.response;
-        this.users = usuarios.sort((a, b) => {
-          if (a.fecha_creacion < b.fecha_creacion) {
-            return 1;
-          }
-          if (a.fecha_creacion > b.fecha_creacion) {
-            return -1;
-          }
-          return 0;
-        });
-      })
-      .catch(error => {
-        console.log(error, error.response);
-      });
+    const api = new Api('usuarios');
+    
+    const users = api.get();
+    console.log(api);
+    // axios
+    //   .get("/users/get")
+    //   .then(response => {
+    //     let usuarios = response.data.response;
+    //     this.users = usuarios.sort((a, b) => {
+    //       if (a.fecha_creacion < b.fecha_creacion) {
+    //         return 1;
+    //       }
+    //       if (a.fecha_creacion > b.fecha_creacion) {
+    //         return -1;
+    //       }
+    //       return 0;
+    //     });
+    //   })
+    //   .catch(error => {
+    //     console.log(error, error.response);
+    //   });
   },
   mounted() {
     EventBus.$on("remove-user", (user, index) => {

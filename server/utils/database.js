@@ -1,7 +1,7 @@
 // import { createConnection } from 'mysql';
 const pool = require('./pool');
 
-module.exports = class Api {
+module.exports = class Database {
 
     constructor(tablename) {
         this.tablename = tablename;
@@ -28,27 +28,29 @@ module.exports = class Api {
         if (!data) return false;
         let sql = `INSERT INTO ${this.tablename} SET ?`;
 
-        pool.beginTransaction((error) => {
-            if (error) throw error;
-
-            pool.query(sql, [data], (error, result) => {
-                if (error) {
-                    return pool.rollback(() => {
-                        throw error;
-                    });
-                }
-                
-                pool.commit((error) => {
+        return new Promise( (resolve, reject) => {
+            pool.beginTransaction((error) => {
+                if (error) reject(error)
+    
+                pool.query(sql, [data], (error, result) => {
                     if (error) {
                         return pool.rollback(() => {
-                            throw error;
+                            reject(error)
                         });
                     }
-
-                    if (result.affectedRows > 0) return result.insertId;
-                });
-            });
-        });
+                    
+                    pool.commit((error) => {
+                        if (error) {
+                            return pool.rollback(() => {
+                                reject(error)
+                            })
+                        }
+    
+                        if (result.affectedRows > 0) resolve(result.insertId)
+                    })
+                })
+            })
+        })
     }
 
     update(id, data = {}) {
@@ -66,26 +68,28 @@ module.exports = class Api {
         
         let sql = `UPDATE ${this.tablename} SET ${fields} WHERE id = ${id};`;
 
-        pool.beginTransaction((error) => {
-            if (error) throw error;
+        return new Promise( (resolve, reject) => {
+            pool.beginTransaction((error) => {
+                if (error) return reject(error)
 
-            pool.query(sql, values, (error, result) => {
-                if (error) {
-                    return pool.rollback(() => {
-                        throw error;
-                    });
-                }
-
-                pool.commit((error) => {
+                pool.query(sql, values, (error, result) => {
                     if (error) {
                         return pool.rollback(() => {
-                            throw error;
+                            reject(error)
                         });
                     }
-                    if (result.affectedRows > 0) return result.insertId;
-                });
-            });
-        });
+
+                    pool.commit((error) => {
+                        if (error) {
+                            return pool.rollback(() => {
+                                reject(error)
+                            });
+                        }
+                        if (result.affectedRows > 0) resolve(result.insertId)
+                    })
+                })
+            })
+        })
     }
 
     delete(id = null) {
@@ -99,11 +103,13 @@ module.exports = class Api {
 
     _getAll() {
         let sql = `SELECT * FROM ${this.tablename};`;
-
-        pool.query(sql, (error, result) => {
-            if (error) throw error;
-            return result;
-        });
+        
+        return new Promise( (resolve, reject) => {
+            pool.query(sql, (error, result) => {
+                if (error) return reject(error);
+                resolve(result);
+            });
+        })
     }
 
     _getById(id) {
@@ -119,11 +125,12 @@ module.exports = class Api {
                 + ` WHERE id = ${id};`;
         }
 
-        pool.query(sql, (error, result) => {
-            if (error) throw error;
-
-            return result;
-        });
+        return new Promise( (resolve, reject) => {
+            pool.query(sql, (error, result) => {
+                if (error) return reject(error)
+                resolve(result)
+            });
+        })
     }
 
     _getWhere() {
@@ -137,12 +144,13 @@ module.exports = class Api {
                 + ` FROM ${this.tablename}`
                 + ` WHERE ${this.conditions};`;
         }
-        
-        pool.query(sql, (error, result) => {
-            if (error) throw error;
 
-            return (result);
-        });
+        return new Promise( (resolve, reject) => {
+            pool.query(sql, (error, result) => {
+                if (error) return reject(error)
+                resolve(result)
+            });
+        })
     }
 
     _delete(id) {
@@ -166,8 +174,8 @@ module.exports = class Api {
                         });
                     }
 
-                    if (result.affectedRows === 1) return true;
-                    else return false;
+                    if (result.affectedRows === 1) resolve(true)
+                    else return reject(false);
                 });
             });
         });

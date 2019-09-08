@@ -1,17 +1,17 @@
 // Requirements
-const express = require('express')
-const bodyParser = require('body-parser')
-const router = express.Router()
-const usersC = require('./controllers/usersController')
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const routes = require('./routes');
 
 // App instance
-const app = express()
 
-app.use(bodyParser.json())
-app.use('/', router)
-router.get('/users', usersC.get);
+app.use(bodyParser.json());
+
+app.use('/', routes);
 
 // App started
 const port = process.env.PORT || 8080
-app.listen(port)
-console.log('Server listening on port: http://localhost:' + port)
+app.listen(port, () => {
+    console.log('Server listening on port: http://localhost:' + port)
+});

@@ -1,10 +1,13 @@
-modules.exports = function(app){
-    app.get('/users', (req, res) => {
-        let sql = `SELECT * FROM usuarios;`;
-        db.query(sql, (error, result) => {
-            if (error) throw error;
-            users = (result[0]);
-            res.send('User: ' + `<a href='/users/${users.id}'>${users.firstname} ${users.lastname}</a>`);
-        });
-    });
-}
+'use strict';
+
+const express = require('express');
+const router = express.Router();
+
+const UserController = require('../controllers/usersController');
+
+router.get('/', UserController.getAll);
+router.get('/:id', UserController.getById);
+router.post('/', UserController.create);
+router.put('/:id', UserController.update);
+
+module.exports = router;

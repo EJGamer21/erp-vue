@@ -1,15 +1,17 @@
 const Database = require('../utils/database')
 
-module.exports = class UserModel extends Database {
+class UserModel extends Database {
     constructor() {
-        super('usuarios')
+        super('usuarios');
     }
     
     getAll() {
-        return (
-            this.get()
-                .then(response => response)
-                .catch(error => error)
-        )
+        return this.get();
+    }
+
+    getById(id) {
+        return this.get(id);
     }
 }
+
+module.exports = UserModel;

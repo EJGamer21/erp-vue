@@ -7,9 +7,17 @@ module.exports = class Database {
         this.tablename = tablename;
     }
 
-    get(id = null, fields = [], conditions = []) {
-        this.fields = fields.join();
+    get(id = null, fields = [], joins = [], conditions = []) {
+        this.joins = '';
         this.conditions = conditions.join(' AND ');
+        
+        if (fields !== null) {
+            this.fields = fields.join();
+        }
+
+        joins.forEach(join => {
+            this.joins += ` ${join.type} JOIN ${join.table} ON ${join.condition}`;
+        });
 
         if (this.conditions) {
             return this._getWhere();
@@ -102,33 +110,63 @@ module.exports = class Database {
     }
 
     _getAll() {
-        let sql = `SELECT * FROM ${this.tablename};`;
+        let sql = '';
+
+        if (this.joins === '') {
+            if (this.fields === '') {
+                sql = `SELECT * FROM ${this.tablename};`;
+            } else {
+                sql = `SELECT ${this.tablename}.id, ${this.fields}`
+                    + ` FROM ${this.tablename}`;
+            }
+        } else {
+            if (this.fields === '') {
+                sql = `SELECT * FROM ${this.tablename} ${this.joins}`;
+            } else {
+                sql = `SELECT ${this.tablename}.id, ${this.fields}`
+                    + ` FROM ${this.tablename}`
+                    + ` ${this.joins}`;
+            }
+        }
         
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
                 if (error) return reject(error);
                 resolve(result);
             });
-        })
+        });
     }
 
     _getById(id) {
         if (!id) return false;
         let sql = '';
 
-        if (this.fields === '') {
-            sql = `SELECT * FROM ${this.tablename}` 
-                + ` WHERE id = ${id};`;
+        if (this.joins === '') {
+            if (this.fields === '') {
+                sql = `SELECT * FROM ${this.tablename}` 
+                    + ` WHERE id = ${id};`;
+            } else {
+                sql = `SELECT ${this.tablename}.id, ${this.fields}`
+                    + ` FROM ${this.tablename}`
+                    + ` WHERE id = ${id};`;
+            }
         } else {
-            sql = `SELECT ${this.tablename}.id, ${this.fields}`
-                + ` FROM ${this.tablename}`
-                + ` WHERE id = ${id};`;
+            if (this.fields === '') {
+                sql = `SELECT * FROM ${this.tablename}` 
+                    + ` ${this.joins}`
+                    + ` WHERE ${this.tablename}.id = ${id};`;
+            } else {
+                sql = `SELECT ${this.tablename}.id, ${this.fields}`
+                    + ` FROM ${this.tablename}`
+                    + ` ${this.joins}`
+                    + ` WHERE ${this.tablename}.id = ${id};`;
+            }
         }
 
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
-                if (error) return reject(error)
-                resolve(result)
+                if (error) return reject(new Error(error));
+                resolve(result);
             });
         })
     }
@@ -174,7 +212,7 @@ module.exports = class Database {
                         });
                     }
 
-                    if (result.affectedRows === 1) resolve(true)
+                    if (result.affectedRows === 1) return resolve(true)
                     else return reject(false);
                 });
             });

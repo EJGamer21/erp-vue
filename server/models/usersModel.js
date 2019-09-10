@@ -7,10 +7,10 @@ class UserModel extends Database {
         super('usuarios');
         this.fields = [
             'usuarios.*',
-            ' emails.email',
-            ' roles.rol, roles.level',
-            ' provincias.nombre as provincia',
-            ' ciudades.nombre as ciudad'
+            'emails.email',
+            'roles.rol, roles.level',
+            'provincias.nombre as provincia',
+            'ciudades.nombre as ciudad'
         ];
         this.joins = [
             {
@@ -47,11 +47,26 @@ class UserModel extends Database {
     }
     
     getAll() {
-        return this.get(null, this.fields, this.joins);
+        return this.get(null);
     }
 
     getById(id) {
-        return this.get(id, this.fields, this.joins);
+        return this.get(id);
+    }
+
+    getWhere(id = null, conditions = []) {
+        return this.get(id, conditions);
+    }
+
+    async createUser(data) {
+        try {
+            const userId = await this.create(data);
+            const user = await this.getById(userId);
+            return user[0];
+        } catch (error) {
+            console.log(error);
+            return new Error(error);
+        }
     }
 }
 

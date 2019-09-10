@@ -1,23 +1,22 @@
-// import { createConnection } from 'mysql';
-const pool = require('./pool');
+'use strict';
 
-module.exports = class Database {
+const { pool, connection } = require('./connection');
+// const pool = require('./pool');
+
+class Database {
 
     constructor(tablename) {
         this.tablename = tablename;
     }
 
-    get(id = null, fields = [], joins = [], conditions = []) {
-        this.joins = '';
+    get(id = null, conditions = []) {
+        this.field = this.fields.join(', ');
         this.conditions = conditions.join(' AND ');
-        
-        if (fields !== null) {
-            this.fields = fields.join();
-        }
 
-        joins.forEach(join => {
-            this.joins += ` ${join.type} JOIN ${join.table} ON ${join.condition}`;
-        });
+        this.join = this.joins.reduce( (accumulator, value) => {
+            accumulator += `${value.type} JOIN ${value.table} ON ${value.condition} `;
+            return accumulator;
+        }, '');
 
         if (this.conditions) {
             return this._getWhere();
@@ -37,28 +36,28 @@ module.exports = class Database {
         let sql = `INSERT INTO ${this.tablename} SET ?`;
 
         return new Promise( (resolve, reject) => {
-            pool.beginTransaction((error) => {
-                if (error) reject(error)
-    
-                pool.query(sql, [data], (error, result) => {
+            connection.beginTransaction((error) => {
+                if (error) reject(new Error(error));
+
+                connection.query(sql, [data], (error, result) => {
                     if (error) {
-                        return pool.rollback(() => {
-                            reject(error)
+                        return connection.rollback(() => {
+                            reject(new Error(error));
                         });
                     }
                     
-                    pool.commit((error) => {
+                    connection.commit((error) => {
                         if (error) {
-                            return pool.rollback(() => {
-                                reject(error)
-                            })
+                            return connection.rollback(() => {
+                                reject(new Error(error));
+                            });
                         }
     
-                        if (result.affectedRows > 0) resolve(result.insertId)
-                    })
-                })
-            })
-        })
+                        if (result.affectedRows > 0) resolve(result.insertId);
+                    });
+                });
+            });
+        });
     }
 
     update(id, data = {}) {
@@ -78,19 +77,19 @@ module.exports = class Database {
 
         return new Promise( (resolve, reject) => {
             pool.beginTransaction((error) => {
-                if (error) return reject(error)
+                if (error) return reject(new Error(error));
 
                 pool.query(sql, values, (error, result) => {
                     if (error) {
                         return pool.rollback(() => {
-                            reject(error)
+                            reject(new Error(error));
                         });
                     }
 
                     pool.commit((error) => {
                         if (error) {
                             return pool.rollback(() => {
-                                reject(error)
+                                reject(new Error(error));
                             });
                         }
                         if (result.affectedRows > 0) resolve(result.insertId)
@@ -111,27 +110,27 @@ module.exports = class Database {
 
     _getAll() {
         let sql = '';
-
-        if (this.joins === '') {
-            if (this.fields === '') {
+        
+        if (this.join === '') {
+            if (this.field === '') {
                 sql = `SELECT * FROM ${this.tablename};`;
             } else {
-                sql = `SELECT ${this.tablename}.id, ${this.fields}`
-                    + ` FROM ${this.tablename}`;
+                sql = `SELECT ${this.tablename}.id, ${this.field}`
+                + ` FROM ${this.tablename}`;
             }
         } else {
-            if (this.fields === '') {
-                sql = `SELECT * FROM ${this.tablename} ${this.joins}`;
+            if (this.field === '') {
+                sql = `SELECT * FROM ${this.tablename} ${this.join}`;
             } else {
-                sql = `SELECT ${this.tablename}.id, ${this.fields}`
-                    + ` FROM ${this.tablename}`
-                    + ` ${this.joins}`;
+                sql = `SELECT ${this.tablename}.id, ${this.field}`
+                + ` FROM ${this.tablename}`
+                + ` ${this.join}`;
             }
         }
-        
+
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
-                if (error) return reject(error);
+                if (error) return reject(new Error(error));
                 resolve(result);
             });
         });
@@ -140,25 +139,31 @@ module.exports = class Database {
     _getById(id) {
         if (!id) return false;
         let sql = '';
-
-        if (this.joins === '') {
-            if (this.fields === '') {
+        
+        if (this.join === '') {
+            if (this.field === '') {
                 sql = `SELECT * FROM ${this.tablename}` 
-                    + ` WHERE id = ${id};`;
-            } else {
-                sql = `SELECT ${this.tablename}.id, ${this.fields}`
-                    + ` FROM ${this.tablename}`
-                    + ` WHERE id = ${id};`;
+                + ` WHERE id = ${id};`;
+            } 
+            
+            else {
+                sql = `SELECT ${this.tablename}.id, ${this.field}`
+                + ` FROM ${this.tablename}`
+                + ` WHERE id = ${id};`;
             }
-        } else {
-            if (this.fields === '') {
+        } 
+        
+        else {
+            if (this.field === '') {
                 sql = `SELECT * FROM ${this.tablename}` 
-                    + ` ${this.joins}`
+                    + ` ${this.join}`
                     + ` WHERE ${this.tablename}.id = ${id};`;
-            } else {
-                sql = `SELECT ${this.tablename}.id, ${this.fields}`
+            } 
+            
+            else {
+                sql = `SELECT ${this.tablename}.id, ${this.field}`
                     + ` FROM ${this.tablename}`
-                    + ` ${this.joins}`
+                    + ` ${this.join}`
                     + ` WHERE ${this.tablename}.id = ${id};`;
             }
         }
@@ -175,20 +180,39 @@ module.exports = class Database {
         if (this.conditions === '') return false;
         let sql = '';
         
-        if (this.fields === '') {
-            sql = `SELECT * FROM ${this.tablename} WHERE ${this.conditions};`;
-        } else {
-            sql = `SELECT ${this.tablename}.id, ${this.fields}`
-                + ` FROM ${this.tablename}`
-                + ` WHERE ${this.conditions};`;
+        if (this.join === '') {
+            if (this.field === '') {
+                sql = `SELECT * FROM ${this.tablename} WHERE ${this.conditions};`;
+            } 
+            
+            else {
+                sql = `SELECT ${this.tablename}.id, ${this.field}`
+                    + ` FROM ${this.tablename}`
+                    + ` WHERE ${this.conditions};`;
+            }
+        }
+
+        else {
+            if (this.field === '') {
+                sql = `SELECT * FROM ${this.tablename}` 
+                    + ` ${this.join}`
+                    + ` WHERE ${this.conditions};`;
+            } 
+            
+            else {
+                sql = `SELECT ${this.tablename}.id, ${this.field}`
+                    + ` FROM ${this.tablename}`
+                    + ` ${this.join}`
+                    + ` WHERE ${this.conditions};`;
+            }
         }
 
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
-                if (error) return reject(error)
-                resolve(result)
+                if (error) return reject(new Error(error));
+                resolve(result);
             });
-        })
+        });
     }
 
     _delete(id) {
@@ -219,3 +243,5 @@ module.exports = class Database {
         });
     }
 }
+
+module.exports = Database;

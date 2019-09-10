@@ -25,7 +25,7 @@ module.exports = {
             res.json(users);
         } catch (error) {
             console.log(error);
-            res.status(500).send({
+            res.status(500).json({
                 error: true,
                 message: 'Error 500: Internal server error',
             });
@@ -50,7 +50,7 @@ module.exports = {
             res.json(user);
         } catch (error) {
             console.log(error);
-            res.status(500).send({
+            res.status(500).json({
                 error: true,
                 message: 'Error 500: Internal server error',
             });
@@ -58,15 +58,65 @@ module.exports = {
     },
 
     create: async (req, res) => {
-        try {
-            console.log(req);
-        } catch (error) {
-            console.log(error);
-            res.status(500).send({
+        const newUser = {
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            sexo: req.body.sexo,
+            username: req.body.username,
+            password: req.body.password,
+            fecha_creacion: moment().format('YYYY-MM-DD HH:mm:ss'),
+            role_id: parseInt(req.body.role_id),
+            image: req.body.image
+        }
+
+        if (req.body.firstname === ''
+            || req.body.lastname === ''
+            || req.body.username === ''
+            || req.body.password === ''
+            || req.body.sexo === ''
+        ) {
+            res.status(400).json({
                 error: true,
-                message: 'Error 500: Internal server error',
+                status: 'error',
+                message: 'Campos no opcionales son requeridos.',
             });
-        }     
+            return;
+        }
+
+        try {
+            const exisitingUser = await api.getWhere(null, [`username = '${newUser.username}'`]);
+
+            if (exisitingUser.length === 0) {
+                /**
+                 * TODO:
+                 * insert new email or use an existing one
+                 * 
+                 * insert new direction or use an existing one
+                 */
+
+                const user = await api.createUser(newUser);
+                res.json({
+                    error: false,
+                    status: 'success',
+                    message: 'Usuario creado exitosamente.',
+                    user,
+                    user_id: user.id,
+                });
+            } else {
+                res.json({
+                    error: false,
+                    status: 'error',
+                    message: 'Usuario ya existente.',
+                });
+            }
+        } catch(error) {
+            console.log(error);
+            res.status(500).json({
+                error: true,
+                status: 'error',
+                message: 'Error 500: Internal server error.',
+            });
+        }
     },
 
     update: async (req, res) => {

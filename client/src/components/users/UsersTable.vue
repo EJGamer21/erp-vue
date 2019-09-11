@@ -17,7 +17,7 @@
         <tr v-for="(user, index) in users" :key="user.id" :id="user.id">
           <td>
             <a
-              :href="'/users/view/' + user.id + '/' + 
+              :href="'/users/view/' + user.id + '/' +
                             (user.firstname + '-' + user.lastname).toLowerCase()"
             >
               <template v-if="user.activo == 1">
@@ -35,7 +35,7 @@
           </td>
           <td>
             <a
-              :href="'/users/view/' + user.id + '/' + 
+              :href="'/users/view/' + user.id + '/' +
                             (user.firstname + '-' + user.lastname).toLowerCase()"
             >
               <span>{{ user.firstname + ' ' + user.lastname }}</span>
@@ -43,7 +43,7 @@
           </td>
           <td>
             <a
-              :href="'/users/view/' + user.id + '/' + 
+              :href="'/users/view/' + user.id + '/' +
                             (user.firstname + '-' + user.lastname).toLowerCase()"
             >
               <span>{{ user.email }}</span>
@@ -51,7 +51,7 @@
           </td>
           <td>
             <a
-              :href="'/users/view/' + user.id + '/' + 
+              :href="'/users/view/' + user.id + '/' +
                             (user.firstname + '-' + user.lastname).toLowerCase()"
             >
               <span>{{ user.fecha_creacion }}</span>
@@ -102,42 +102,35 @@
 </template>
 
 <script>
-import { EventBus } from "../EventBus";
+import { EventBus } from "@/EventBus";
 import axios from "axios";
 import swal from "sweetalert";
-import { toastConfigs, showAlert } from "../mixins/mixin";
-const Api = require('../backend/api');
+import { toastConfigs, showAlert } from "@/mixins/mixin";
 
 export default {
-  name: "UsersTable",
-  template: "#users-table",
+  name: "users-table",
   data() {
     return {
       users: []
     };
   },
-  beforeMount() {
-    const api = new Api('usuarios');
-    
-    const users = api.get();
-    console.log(api);
-    // axios
-    //   .get("/users/get")
-    //   .then(response => {
-    //     let usuarios = response.data.response;
-    //     this.users = usuarios.sort((a, b) => {
-    //       if (a.fecha_creacion < b.fecha_creacion) {
-    //         return 1;
-    //       }
-    //       if (a.fecha_creacion > b.fecha_creacion) {
-    //         return -1;
-    //       }
-    //       return 0;
-    //     });
-    //   })
-    //   .catch(error => {
-    //     console.log(error, error.response);
-    //   });
+  async beforeMount() {
+    try {
+      const response = await axios.get('http://localhost:8081/users');
+      let usuarios = response.data;
+      this.users = usuarios.sort((a, b) => {
+        if (a.fecha_creacion < b.fecha_creacion) {
+          return 1;
+        }
+        if (a.fecha_creacion > b.fecha_creacion) {
+          return -1;
+        }
+        return 0;
+      });
+
+    } catch (error) {
+      console.log(new Error(error));
+    }
   },
   mounted() {
     EventBus.$on("remove-user", (user, index) => {
@@ -170,7 +163,7 @@ export default {
 
         if (confirmation) {
           try {
-            const response = await axios.post("/users/toggleStatus/" + user.id);
+            const response = await axios.post("http://localhost:8081/users/toggleStatus/" + user.id);
 
             if (this.users[index].activo === 1) {
               this.users[index].activo = 0;
@@ -201,7 +194,7 @@ export default {
         });
         if (confirmation) {
           try {
-            const response = await axios.post("/users/removeUser/" + user.id);
+            const response = await axios.delete("http://localhost:8081/users/" + user.id);
             this.$emit("close-modal");
 
             if (response.data.status === "success") {

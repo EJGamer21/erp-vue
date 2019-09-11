@@ -1,21 +1,24 @@
-import { swal } from "sweetalert";
+// eslint-disable-next-line vue/use-v-on-exact
+// eslint-disable-next-line vue/use-v-on-exact
+/* eslint-disable vue/no-unused-components */
+import swal from 'sweetalert'
 
 export const toastConfigs = {
-    closeButton: true,
-    progressBar: true,
-    position: "top right",
-    showMethod: "fadeInDown",
-    hideMethod: "fadeOutRight",
-    showDuration: "1000",
-    hideDuration: "1000",
-    timeOut: "5000"
-};
+  closeButton: true,
+  progressBar: true,
+  position: 'top right',
+  showMethod: 'fadeInDown',
+  hideMethod: 'fadeOutRight',
+  showDuration: '1000',
+  hideDuration: '1000',
+  timeOut: '5000'
+}
 
-export function showAlert(title, text, icon, time = null) {
-    swal({
-        title: title,
-        text: text,
-        icon: icon,
-        timer: time
-    });
+export function showAlert (title, text, icon, time = null) {
+  swal({
+    title: title,
+    text: text,
+    icon: icon,
+    timer: time
+  })
 }

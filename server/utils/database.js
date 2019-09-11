@@ -76,27 +76,27 @@ class Database {
         let sql = `UPDATE ${this.tablename} SET ${fields} WHERE id = ${id};`;
 
         return new Promise( (resolve, reject) => {
-            pool.beginTransaction((error) => {
+            connection.beginTransaction((error) => {
                 if (error) return reject(new Error(error));
 
-                pool.query(sql, values, (error, result) => {
+                connection.query(sql, values, (error, result) => {
                     if (error) {
-                        return pool.rollback(() => {
+                        return connection.rollback(() => {
                             reject(new Error(error));
                         });
                     }
 
-                    pool.commit((error) => {
+                    connection.commit((error) => {
                         if (error) {
-                            return pool.rollback(() => {
+                            return connection.rollback(() => {
                                 reject(new Error(error));
                             });
                         }
                         if (result.affectedRows > 0) resolve(result.insertId)
-                    })
-                })
-            })
-        })
+                    });
+                });
+            });
+        });
     }
 
     delete(id = null) {
@@ -217,27 +217,27 @@ class Database {
 
     _delete(id) {
         if (this.idToDelete !== id) return false;
-        let sql = `DELETE FROM ${this.tablename} WHERE id = ${id} LIMIT 1;`;
+        let sql = `DELETE FROM ${this.tablename} WHERE id = ? LIMIT 1;`;
+        
+        return new Promise( (resolve, reject) => {
+            connection.beginTransaction((error) => {
+                if (error) return reject(new Error(error));
 
-        pool.beginTransaction((error) => {
-            if (error) throw error;
-            
-            pool.query(sql, (error, result) => {
-                if (error) {
-                    return pool.rollback(() => {
-                        throw error;
-                    });
-                }
-
-                pool.commit((error) => {
+                connection.query(sql, [id], (error, result) => {
                     if (error) {
-                        return pool.rollback(() => {
-                            throw error;
+                        return connection.rollback(() => {
+                            reject(new Error(error));
                         });
                     }
 
-                    if (result.affectedRows === 1) return resolve(true)
-                    else return reject(false);
+                    connection.commit((error) => {
+                        if (error) {
+                            return connection.rollback(() => {
+                                reject(new Error(error));
+                            });
+                        }
+                        if (result.affectedRows === 1) resolve(result.insertId)
+                    });
                 });
             });
         });

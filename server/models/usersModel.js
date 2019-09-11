@@ -68,6 +68,10 @@ class UserModel extends Database {
             return new Error(error);
         }
     }
+
+    async deleteUser(id) {
+        return this.delete(id);
+    }
 }
 
 module.exports = UserModel;

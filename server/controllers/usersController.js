@@ -121,5 +121,36 @@ module.exports = {
 
     update: async (req, res) => {
         console.log(req);
+    },
+
+    delete: async (req, res) => {
+        const id = parseInt(req.params.id);
+        try {
+            const deleted = await api.delete(id);
+            console.log(deleted);
+            if (deleted) {
+                res.json({
+                    error: false,
+                    status: 'success',
+                    message: 'Usuario eliminado exitosamente.',
+                    user_id: deleted,
+                });
+            } else {
+                res.json({
+                    error: true,
+                    status: 'error',
+                    message: 'No se pudo eliminar el usuario.',
+                    user_id: deleted,
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            res.json({
+                error: true,
+                status: 'error',
+                message: 'Error 500: Internal server error.',
+            });
+        }
+        
     }
 }

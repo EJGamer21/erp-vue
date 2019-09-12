@@ -120,7 +120,25 @@ module.exports = {
     },
 
     update: async (req, res) => {
-        console.log(req);
+        const id = parseInt(req.params.id);
+        try {
+            const user = {
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                sexo: req.body.sexo,
+                username: req.body.username,
+                password: req.body.password,
+                fecha_modificado: moment().format('YYYY-MM-DD HH:mm:ss'),
+                role_id: parseInt(req.body.role_id),
+                image: req.body.image
+            }
+            const response = await api.updateUser(id, user);
+            console.log('controller');
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+            return new Error(error);
+        }
     },
 
     delete: async (req, res) => {
@@ -152,5 +170,5 @@ module.exports = {
             });
         }
         
-    }
+    },
 }

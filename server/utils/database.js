@@ -53,7 +53,7 @@ class Database {
                             });
                         }
     
-                        if (result.affectedRows > 0) resolve(result.insertId);
+                        if (result.affectedRows > 0) return resolve(result.insertId);
                     });
                 });
             });
@@ -69,11 +69,13 @@ class Database {
             if (index !== 0) {
                 accumulator = `${accumulator}, `;
             }
-            accumulator = `${accumulator}` + ` ${value} = ?`;
+            accumulator = `${accumulator}` + `${value} = ?`;
             return accumulator;
         }, '');
         
         let sql = `UPDATE ${this.tablename} SET ${fields} WHERE id = ${id};`;
+        console.log(values);
+        return;
 
         return new Promise( (resolve, reject) => {
             connection.beginTransaction((error) => {
@@ -92,7 +94,7 @@ class Database {
                                 reject(new Error(error));
                             });
                         }
-                        if (result.affectedRows > 0) resolve(result.insertId)
+                        if (result.affectedRows > 0) return resolve(result.insertId);
                     });
                 });
             });
@@ -131,7 +133,7 @@ class Database {
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
                 if (error) return reject(new Error(error));
-                resolve(result);
+                return resolve(result);
             });
         });
     }
@@ -171,7 +173,7 @@ class Database {
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
                 if (error) return reject(new Error(error));
-                resolve(result);
+                return resolve(result);
             });
         })
     }
@@ -210,7 +212,7 @@ class Database {
         return new Promise( (resolve, reject) => {
             pool.query(sql, (error, result) => {
                 if (error) return reject(new Error(error));
-                resolve(result);
+                return resolve(result);
             });
         });
     }
@@ -236,7 +238,8 @@ class Database {
                                 reject(new Error(error));
                             });
                         }
-                        if (result.affectedRows === 1) resolve(result.insertId)
+                        if (result.affectedRows === 1) return resolve(true);
+                        else return reject(false);
                     });
                 });
             });

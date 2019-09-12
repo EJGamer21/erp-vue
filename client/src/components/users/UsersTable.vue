@@ -156,14 +156,15 @@ export default {
         const confirmation = await swal({
           title: "Confirmación",
           text:
-            `¿Seguro que desea ${message} al usuario '` + user.username + `'?`,
+            `¿Seguro que desea ${message} al usuario '${user.username}'?`,
           icon: "warning",
           buttons: ["Cancelar", true]
         });
 
         if (confirmation) {
           try {
-            const response = await axios.post("http://localhost:8081/users/toggleStatus/" + user.id);
+            const newStatus = (user.activo === 1) ? 0 : 1;
+            const response = await axios.put("http://localhost:8081/users/" + user.id, {activo: newStatus});
 
             if (this.users[index].activo === 1) {
               this.users[index].activo = 0;
@@ -198,7 +199,7 @@ export default {
             this.$emit("close-modal");
 
             if (response.data.status === "success") {
-              showAlert("Notificación", response.data.message, "success", 2000);
+              showAlert("Notificación", response.data.message, response.data.status, 2000);
               setTimeout(() => {
                 this.users.splice(index, 1);
               }, 300);

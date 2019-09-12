@@ -72,6 +72,20 @@ class UserModel extends Database {
     async deleteUser(id) {
         return this.delete(id);
     }
+    
+    async updateUser(id, data) {
+        try {
+            const userId = await this.update(id, data);
+            const updatedUser = await this.getById(userId);
+            console.log('Model');
+            console.log(updatedUser);
+            console.log('--Model--');
+            return updatedUser[0];
+        } catch (error) {
+            console.log(error);
+            return new Error(error);
+        }
+    }
 }
 
 module.exports = UserModel;

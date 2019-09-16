@@ -10,10 +10,5 @@ export default {
   components: {
     "users": Users
   },
-  data() {
-    return {
-      message: 'Hello from App',
-    };
-  }
 };
 </script>

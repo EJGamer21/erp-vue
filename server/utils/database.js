@@ -74,8 +74,6 @@ class Database {
         }, '');
         
         let sql = `UPDATE ${this.tablename} SET ${fields} WHERE id = ${id};`;
-        console.log(values);
-        return;
 
         return new Promise( (resolve, reject) => {
             connection.beginTransaction((error) => {
@@ -94,7 +92,7 @@ class Database {
                                 reject(new Error(error));
                             });
                         }
-                        if (result.affectedRows > 0) return resolve(result.insertId);
+                        if (result.affectedRows > 0) return resolve(id);
                     });
                 });
             });

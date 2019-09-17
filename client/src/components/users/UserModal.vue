@@ -10,7 +10,7 @@
                   <img :src="user.image" class="card-img" alt="No image">
                 </template>
                 <template v-else>
-                  <img src="/public/images/users/no_picture.png" class="card-img" alt="No image">
+                  <img src="https://via.placeholder.com/800x800" class="card-img" alt="No image">
                 </template>
               </div>
               <div class="col-md-8">

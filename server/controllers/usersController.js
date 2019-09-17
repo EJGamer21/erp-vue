@@ -171,4 +171,34 @@ module.exports = {
         }
         
     },
+
+    toggleUserStatus: async (req, res) => {
+        const id = parseInt(req.params.id);
+        try {
+            const status = { activo: req.body.activo }
+            const userId = await api.updateUser(id, status);
+            const user = await api.getById(userId);
+            if (moment(user[0].fecha_creacion).isValid()) {
+                user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+            } else {
+                user[0].fecha_creacion = '';
+            }
+
+            if (moment(user[0].fecha_modificado).isValid()) {
+                user[0].fecha_modificado = moment(user[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+            } else {
+                user[0].fecha_modificado = '';
+            }
+
+            res.json({
+                error: false,
+                status: 'success',
+                message: 'Usuario actualizado exitosamente.',
+                user: user[0],
+            })
+        } catch (error) {
+            console.log(error);
+            return new Error(error);
+        }
+    },
 }

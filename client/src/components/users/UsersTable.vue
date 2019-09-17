@@ -164,14 +164,17 @@ export default {
         if (confirmation) {
           try {
             const newStatus = (user.activo === 1) ? 0 : 1;
-            const response = await axios.put("http://localhost:8081/users/" + user.id, {activo: newStatus});
-
-            if (this.users[index].activo === 1) {
-              this.users[index].activo = 0;
+            const response = await axios.patch("http://localhost:8081/users/" + user.id, {activo: newStatus});
+            if (response.data.error === false) {
+              if (this.users[index].activo === 1) {
+                this.users[index].activo = 0;
+              } else {
+                this.users[index].activo = 1;
+              }
+              showAlert("Información", response.data.message, response.data.status, 2000);
             } else {
-              this.users[index].activo = 1;
+              showAlert("Error", response.data.message, response.data.status, 2000);
             }
-            showAlert("Información", response.data.message, "success", 2000);
           } catch (error) {
             if (error.response) {
               console.log(error.response);

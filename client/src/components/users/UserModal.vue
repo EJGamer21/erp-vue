@@ -121,7 +121,8 @@
                       title="Borrar usuario"
                       @click="emitRemoveUser(user, user.index)"
                     >
-                      <span>Borrar</span>
+                      <span>Borrar&nbsp;</span>
+                      <i class="fas fa-times"></i>
                     </button>
                   </div>
                   <div class="float-right">

@@ -1,7 +1,7 @@
 <template>
   <div class="card mb-4">
     <div class="card-header bg-dark text-white">
-      <template v-if="new_user.id !== null">
+      <template v-if="user.id !== null">
         <span>Editar usuario</span>
       </template>
       <template v-else>
@@ -24,7 +24,7 @@
                 class="form-control"
                 type="text"
                 name="firstname"
-                v-model="new_user.firstname"
+                v-model="user.firstname"
                 autofocus
                 required
               >
@@ -37,7 +37,7 @@
                 class="form-control"
                 type="text"
                 name="lastname"
-                v-model="new_user.lastname"
+                v-model="user.lastname"
                 required
               >
             </div>
@@ -52,7 +52,7 @@
                 type="text"
                 id="username"
                 name="username"
-                v-model="new_user.username"
+                v-model="user.username"
                 autocomplete="username"
                 required
               >
@@ -66,7 +66,7 @@
                   <i>Opcional</i>
                 </small>
               </label>
-              <input class="form-control" type="email" name="email" v-model="new_user.email">
+              <input class="form-control" type="email" name="email" v-model="user.email">
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@
                 type="password"
                 id="password"
                 name="password"
-                v-model="new_user.password"
+                v-model="user.password"
                 autocomplete="password"
                 required
               >
@@ -92,7 +92,7 @@
                 class="form-control"
                 type="password"
                 id="retyped-password"
-                v-model="new_user.retyped_password"
+                v-model="user.retyped_password"
                 required
               >
             </div>
@@ -109,7 +109,7 @@
                   name="sex"
                   class="custom-control-input"
                   value="M"
-                  v-model="new_user.sex"
+                  v-model="user.sex"
                   required
                 >
                 <label for="m-radio" class="custom-control-label">Masculino</label>
@@ -121,7 +121,7 @@
                   name="sex"
                   class="custom-control-input"
                   value="F"
-                  v-model="new_user.sex"
+                  v-model="user.sex"
                   required
                 >
                 <label for="f-radio" class="custom-control-label">Femenino</label>
@@ -137,7 +137,7 @@
             </label>
             <div class="form-row">
               <div class="mb-2 col d-sm-block d-lg-inline">
-                <select class="custom-select" v-model="new_user.direction.city">
+                <select class="custom-select" v-model="user.direction.city">
                   <option value selected>Seleccionar ciudad...</option>
                   <optgroup
                     v-for="province in directions.provinces"
@@ -166,12 +166,34 @@
                 <i>Opcional</i>
               </small>
             </label>
+            <!-- <div class="file has-name">
+              <label class="file-label">
+                <input
+                  class="file-input"
+                  type="file"
+                  accept="image/*"
+                  name="user-image"
+                  ref="userImage"
+                  :disabled="isUploading"
+                  @change="onImageChange"
+                >
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fas fa-upload"></i>
+                  </span>
+                  <span class="file-label">
+                    Elige un archivo...
+                  </span>
+                </span>
+                <span class="file-name">{{ user.image }}</span>
+              </label>
+            </div> -->
             <input
               class="form-control-file"
               type="file"
               accept="image/*"
               name="image"
-              ref="userimage"
+              ref="userImage"
               :disabled="isUploading"
               @change="onImageChange"
             >
@@ -198,7 +220,7 @@
                 class="btn btn-success"
                 @click="saveUser()"
               >
-                <template v-if="new_user.id !== null">
+                <template v-if="user.id !== null">
                   <span>Guardar</span>
                 </template>
                 <template v-else>
@@ -223,7 +245,7 @@ export default {
   name: "UserForm",
   data() {
     return {
-      new_user: {
+      user: {
         id: null,
         index: "",
         username: "",
@@ -299,10 +321,11 @@ export default {
     //     console.log(error, error.response);
     //   });
     EventBus.$on("edit-user", user => {
-      this.new_user = user;
-      this.new_user.password = "";
-      this.new_user.retyped_password = "";
-      this.new_user.direction = {
+      console.log(user);
+      Object.assign(this.user, user);
+      this.user.password = "";
+      this.user.retyped_password = "";
+      this.user.direction = {
         province: "",
         city: ""
       };
@@ -310,13 +333,13 @@ export default {
   },
   methods: {
     clearInputs() {
-      for (const key in this.new_user) {
-        if (this.new_user.hasOwnProperty(key)) {
-          this.new_user[key] = "";
+      for (const key in this.user) {
+        if (this.user.hasOwnProperty(key)) {
+          this.user[key] = "";
         }
       }
-      this.new_user.id = null;
-      this.new_user.direction = {
+      this.user.id = null;
+      this.user.direction = {
         province: "",
         city: ""
       };
@@ -324,17 +347,18 @@ export default {
 
     onImageChange() {
       this.isInitial = false;
+      this.user.image = this.$refs.userImage.files[0].name
       console.log("H");
     },
 
     async saveUser() {
       if (
-        this.new_user.username === ""
-        || this.new_user.password === ""
-        || this.new_user.retyped_password === ""
-        || this.new_user.firstname === ""
-        || this.new_user.lastname === ""
-        || this.new_user.sex === ""
+        this.user.username === ""
+        || this.user.password === ""
+        || this.user.retyped_password === ""
+        || this.user.firstname === ""
+        || this.user.lastname === ""
+        || this.user.sex === ""
       ) {
         this.$toast.error({
           title: "Error",
@@ -344,7 +368,7 @@ export default {
         return;
       }
 
-      if (this.new_user.password !== this.new_user.retyped_password) {
+      if (this.user.password !== this.user.retyped_password) {
         this.$toast.error({
           title: "Error",
           message: "Las constraseñas deben coincidir.",
@@ -354,14 +378,14 @@ export default {
       }
 
       let userData = new FormData();
-      userData.append("id", this.new_user.id);
-      userData.append("firstname", this.new_user.firstname);
-      userData.append("lastname", this.new_user.lastname);
-      userData.append("username", this.new_user.username);
-      userData.append("email", this.new_user.email);
-      userData.append("password", this.new_user.password);
-      userData.append("sex", this.new_user.sex);
-      userData.append("fecha_creacion", this.new_user.fecha_creacion);
+      userData.append("id", this.user.id);
+      userData.append("firstname", this.user.firstname);
+      userData.append("lastname", this.user.lastname);
+      userData.append("username", this.user.username);
+      userData.append("email", this.user.email);
+      userData.append("password", this.user.password);
+      userData.append("sex", this.user.sex);
+      userData.append("fecha_creacion", this.user.fecha_creacion);
 
       if (this.$refs.userimage.files[0]) {
         console.log('loaded');
@@ -393,23 +417,23 @@ export default {
               this.clearInputs();
 
               showAlert("Notificación", response.data.message, "success", 2000);
-              this.new_users.splice(0, 0, response.data.user);
+              this.users.splice(0, 0, response.data.user);
             } else if (response.data.status === "info") {
               this.clearInputs();
 
               let updatedUser = response.data.user;
-              let existingUser = this.new_users.find(
+              let existingUser = this.users.find(
                 user => user.id === updatedUser.id
               );
-              let index = this.new_users.indexOf(existingUser);
+              let index = this.users.indexOf(existingUser);
 
-              this.new_users.splice(index, 1, updatedUser);
+              this.users.splice(index, 1, updatedUser);
               showAlert("Información", response.data.message, "info", 2000);
             }
           } catch (error) {
             if (error.response) {
-              this.new_user.password = "";
-              this.new_user.retyped_password = "";
+              this.user.password = "";
+              this.user.retyped_password = "";
 
               this.$toastr.error(
                 error.response.data.message,

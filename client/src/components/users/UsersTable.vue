@@ -102,13 +102,13 @@
 </template>
 
 <script>
-import { EventBus } from "@/EventBus";
-import axios from "axios";
-import swal from "sweetalert";
-import { toastConfigs, showAlert } from "@/mixins/mixin";
+import { EventBus } from '@/EventBus';
+import axios from 'axios';
+import swal from 'sweetalert';
+import { toastConfigs, showAlert } from '@/mixins/mixin';
 
 export default {
-  name: "users-table",
+  name: 'users-table',
   data() {
     return {
       users: []
@@ -133,52 +133,52 @@ export default {
     }
   },
   mounted() {
-    EventBus.$on("remove-user", (user, index) => {
+    EventBus.$on('remove-user', (user, index) => {
       this.removeUser(user, index);
     });
 
-    EventBus.$on("toggle-user-status", (user, index) => {
+    EventBus.$on('toggle-user-status', (user, index) => {
       this.toggleUserStatus(user, index);
     });
   },
   methods: {
-    emitEditUser(user) {
-      EventBus.$emit("edit-user", user);
+    emitEditUser (user) {
+      EventBus.$emit('edit-user', user);
     },
 
-    emitShowModal(user, index) {
-      this.$emit("show-modal", user, index);
+    emitShowModal (user, index) {
+      this.$emit('show-modal', user, index);
     },
 
-    async toggleUserStatus(user, index) {
+    async toggleUserStatus (user, index) {
       try {
-        let message = user.activo === "1" ? "desactivar" : "activar";
+        let message = user.activo === '1' ? 'desactivar' : 'activar';
         const confirmation = await swal({
-          title: "Confirmación",
+          title: 'Confirmación',
           text:
             `¿Seguro que desea ${message} al usuario '${user.username}'?`,
-          icon: "warning",
-          buttons: ["Cancelar", true]
+          icon: 'warning',
+          buttons: ['Cancelar', true]
         });
 
         if (confirmation) {
           try {
             const newStatus = (user.activo === 1) ? 0 : 1;
-            const response = await axios.patch("http://localhost:8081/users/" + user.id, {activo: newStatus});
+            const response = await axios.patch('http://localhost:8081/users/' + user.id, {activo: newStatus});
             if (response.data.error === false) {
               if (this.users[index].activo === 1) {
                 this.users[index].activo = 0;
               } else {
                 this.users[index].activo = 1;
               }
-              showAlert("Información", response.data.message, response.data.status, 2000);
+              showAlert('Información', response.data.message, response.data.status, 2000);
             } else {
-              showAlert("Error", response.data.message, response.data.status, 2000);
+              showAlert('Error', response.data.message, response.data.status, 2000);
             }
           } catch (error) {
             if (error.response) {
               console.log(error.response);
-              this.$toastr.error(error.response.data, "Error", toastConfigs);
+              this.$toastr.error(error.response.data, 'Error', toastConfigs);
             }
           }
         }
@@ -187,22 +187,22 @@ export default {
       }
     },
 
-    async removeUser(user, index) {
+    async removeUser (user, index) {
       try {
         const confirmation = await swal({
-          title: "Confirmación",
+          title: 'Confirmación',
           text: `¿Seguro que desea borrar al usuario '` + user.username + `'?`,
-          icon: "warning",
-          buttons: ["Cancelar", true],
+          icon: 'warning',
+          buttons: ['Cancelar', true],
           dangerMode: true
         });
         if (confirmation) {
           try {
-            const response = await axios.delete("http://localhost:8081/users/" + user.id);
-            this.$emit("close-modal");
+            const response = await axios.delete('http://localhost:8081/users/' + user.id);
+            this.$emit('close-modal');
 
-            if (response.data.status === "success") {
-              showAlert("Notificación", response.data.message, response.data.status, 2000);
+            if (response.data.status === 'success') {
+              showAlert('Notificación', response.data.message, response.data.status, 2000);
               setTimeout(() => {
                 this.users.splice(index, 1);
               }, 300);
@@ -212,7 +212,7 @@ export default {
               console.log(error.response);
               this.$toastr.error(
                 error.response.data.message,
-                "Error",
+                'Error',
                 toastConfigs
               );
             }

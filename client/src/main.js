@@ -3,7 +3,9 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import 'bootstrap/dist/css/bootstrap.css'
+// import 'bootstrap/dist/css/bootstrap.css'
+import Buefy from 'buefy'
+import 'buefy/dist/buefy.css'
 import '../style.css'
 import { loadProgressBar } from 'axios-progress-bar'
 import Toastr from 'vue2-toastr'
@@ -13,6 +15,7 @@ import { toastConfigs } from './mixins/mixin'
 loadProgressBar()
 
 Vue.use(Toastr, toastConfigs)
+Vue.use(Buefy)
 
 Vue.config.productionTip = false
 

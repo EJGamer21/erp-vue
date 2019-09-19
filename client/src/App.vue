@@ -1,16 +1,17 @@
 <template>
-  <div>
-    <users></users>
+  <div id="app">
+    <navbar></navbar>
+    <router-view/>
   </div>
 </template>
 
 <script>
-import Users from "@/components/Users";
+import NavBar from '@/components/ui/NavBar';
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
-    "users": Users
+    'navbar': NavBar,
   },
 };
 </script>

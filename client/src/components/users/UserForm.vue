@@ -1,5 +1,5 @@
 <template>
-  <div class="card mb-4">
+  <div class="card">
     <div class="card-header bg-dark text-white">
       <template v-if="user.id !== null">
         <span>Editar usuario</span>

@@ -1,13 +1,9 @@
 <template>
-  <div class="row">
-    <div class="col-10 mx-auto">
-      <div class="container-fluid">
-        <h1 class="my-4">Usuarios</h1>
-        <user-form></user-form>
-        <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
-        <user-modal v-if="modalIsVisible" :user="user" @close-modal="closeModal"></user-modal>
-      </div>
-    </div>
+  <div>
+    <h1 class="title">Usuarios</h1>
+    <user-form></user-form>
+    <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
+    <user-modal v-if="modalIsVisible" :user="user" @close-modal="closeModal"></user-modal>
   </div>
 </template>
 

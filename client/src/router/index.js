@@ -15,14 +15,34 @@ export default new Router({
       component: Home
     },
     {
-      path: '/users',
-      name: 'users',
-      component: Users
+      path: '/products',
+      name: 'products',
+      component: Clients
     },
     {
       path: '/clients',
       name: 'clients',
       component: Clients
     },
+    {
+      path: '/users',
+      name: 'users',
+      component: Users
+    },
+    {
+      path: '/bills',
+      name: 'bills',
+      component: Clients
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: Clients
+    },
+    {
+      path: '/config',
+      name: 'config',
+      component: Clients
+    }
   ]
 })

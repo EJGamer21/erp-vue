@@ -1,9 +1,13 @@
 // eslint-disable-next-line vue/no-unused-components
 import Vue from 'vue'
 import Router from 'vue-router'
-import Users from '@/components/Users'
 import Home from '@/components/Home'
+import Products from '@/components/Products'
 import Clients from '@/components/Clients'
+import Users from '@/components/Users'
+import Bills from '@/components/Bills'
+import Reports from '@/components/Reports'
+import Settings from '@/components/Settings'
 
 Vue.use(Router)
 
@@ -17,7 +21,7 @@ export default new Router({
     {
       path: '/products',
       name: 'products',
-      component: Clients
+      component: Products
     },
     {
       path: '/clients',
@@ -32,17 +36,17 @@ export default new Router({
     {
       path: '/bills',
       name: 'bills',
-      component: Clients
+      component: Bills
     },
     {
       path: '/reports',
       name: 'reports',
-      component: Clients
+      component: Reports
     },
     {
       path: '/config',
       name: 'config',
-      component: Clients
+      component: Settings
     }
   ]
 })

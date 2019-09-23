@@ -2,7 +2,7 @@
   <b-navbar
     type="is-dark"
     wrapper-class="container"
-    class="has-shadow"
+    class="b-navbar is-spaced"
   >
     <template slot="brand">
       <b-navbar-item
@@ -27,7 +27,7 @@
 
       <b-navbar-item
         tag="router-link"
-        :to="{ name: 'clients' }"
+        :to="{ name: 'products' }"
       >
         <i class="fas fa-box-open"></i>
         &nbsp;Products
@@ -51,7 +51,7 @@
 
       <b-navbar-item
         tag="router-link"
-        :to="{ name: 'clients' }"
+        :to="{ name: 'bills' }"
       >
         <i class="fas fa-plus"></i>
         &nbsp;New bill
@@ -59,7 +59,7 @@
 
       <b-navbar-item
         tag="router-link"
-        :to="{ name: 'clients' }"
+        :to="{ name: 'reports' }"
       >
         <i class="fas fa-file-excel"></i>
         &nbsp;Reports
@@ -67,7 +67,7 @@
 
       <b-navbar-item
         tag="router-link"
-        :to="{ name: 'clients' }"
+        :to="{ name: 'config' }"
       >
         <i class="fas fa-cog"></i>
         &nbsp;Settings
@@ -75,20 +75,52 @@
     </template>
 
     <template slot="end">
-      <b-navbar-item>
-        <span>{{ user_fullname }}</span>
-      </b-navbar-item>
+      <template v-if="user.logged">
+        <b-navbar-item>
+          <span>{{ user_fullname }}</span>
+        </b-navbar-item>
+      </template>
 
-      <b-navbar-item tag="div">
-        <b-button
-          type="is-primary"
-          icon-left="sign-out-alt"
-          icon-pack="fas"
-          @click="logout()"
-        >
-          Logout
-        </b-button>
-      </b-navbar-item>
+      <template v-else>
+        <b-navbar-item tag=div>
+          <b-button
+            type="is-primary"
+            inverted
+            outlined
+            icon-left="sign-in-alt"
+            icon-pack="fas"
+            @click="login()"
+          >
+            Login
+          </b-button>
+        </b-navbar-item>
+      </template>
+
+      <div class="buttons">
+        <template v-if="user.logged">
+          <b-navbar-item tag="div">
+            <b-button
+              type="is-info"
+              icon-left="sign-out-alt"
+              icon-pack="fas"
+              @click="logout()"
+            >
+              Logout
+            </b-button>
+          </b-navbar-item>
+        </template>
+
+        <template v-else>
+          <b-navbar-item tag="div">
+            <b-button
+              type="is-info"
+              @click="signup()"
+            >
+              Register
+            </b-button>
+          </b-navbar-item>
+        </template>
+      </div>
 
       <!-- <b-dropdown
         position="is-bottom-left"
@@ -146,7 +178,6 @@ export default {
         lastname: 'Jimenez',
         logged: true,
       },
-      downIcon: true
     }
   },
   computed: {
@@ -157,7 +188,13 @@ export default {
   methods: {
     logout() {
       console.log('logged out');
-    }
+    },
+    login() {
+      console.log('logged in');
+    },
+    signup() {
+      console.log('signed in');
+    },
   }
 }
 </script>

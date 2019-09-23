@@ -1,19 +1,6 @@
-header,
-main,
-footer {
-  padding-left: 300px;
-}
-
-@media only screen and (max-width: 992px) {
-  header,
-  main,
-  footer {
-    padding-left: 0;
-  }
-}
-
-[v-cloak] {
-  display: none;
+.b-navbar {
+  /* background-image: linear-gradient(to right, #434343 0%, black 100%); */
+  background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
 }
 
 .hr {

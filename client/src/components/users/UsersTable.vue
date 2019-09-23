@@ -1,5 +1,5 @@
 <template>
-  <div class="table-responsive mt-4" v-cloak>
+  <!-- <div class="table-responsive mt-4" v-cloak>
     <table id="users-table" class="table table-striped table-hover centered">
       <caption>Listado de usuarios</caption>
       <thead class="thead-dark">
@@ -98,7 +98,23 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  </div> -->
+  <section class="section">
+    <b-table
+      :data="users"
+      :loading="isLoading"
+      striped
+      hoverable
+      focusable
+      mobile-cards
+    >
+      <template slot-scope="props">
+        <b-table-column field="fullname" label="Username">
+          {{ props.row.username }}
+        </b-table-column>
+      </template>
+    </b-table>
+  </section>
 </template>
 
 <script>
@@ -114,11 +130,17 @@ export default {
       users: []
     };
   },
-  async beforeMount() {
+
+  computed: {
+    isLoading() {
+      return (this.users.length > 1) ? false : true;
+    }
+  },
+
+  async mounted() {
     try {
       const response = await axios.get('http://localhost:8081/users');
-      let usuarios = response.data;
-      this.users = usuarios.sort((a, b) => {
+      this.users = response.data.sort((a, b) => {
         if (a.fecha_creacion < b.fecha_creacion) {
           return 1;
         }
@@ -128,11 +150,13 @@ export default {
         return 0;
       });
 
+      this.users.forEach(user => {
+        user.fullname = `${user.firstname} ${user.lastname}`
+      });
     } catch (error) {
       console.log(new Error(error));
-    }
-  },
-  mounted() {
+    };
+
     EventBus.$on('remove-user', (user, index) => {
       this.removeUser(user, index);
     });
@@ -141,6 +165,7 @@ export default {
       this.toggleUserStatus(user, index);
     });
   },
+
   methods: {
     emitEditUser (user) {
       EventBus.$emit('edit-user', user);

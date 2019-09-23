@@ -75,16 +75,14 @@
     </template>
 
     <template slot="end">
-      <template v-if="user.logged">
-        <b-navbar-item>
-          <span>{{ user_fullname }}</span>
-        </b-navbar-item>
-      </template>
+      <b-navbar-item tag='div'>
+        <template v-if="user.logged">
+          <b>{{ user_fullname }}</b>
+        </template>
 
-      <template v-else>
-        <b-navbar-item tag=div>
+        <template v-else>
           <b-button
-            type="is-primary"
+            type="is-info"
             inverted
             outlined
             icon-left="sign-in-alt"
@@ -93,33 +91,31 @@
           >
             Login
           </b-button>
-        </b-navbar-item>
-      </template>
+        </template>
+      </b-navbar-item>
 
       <div class="buttons">
-        <template v-if="user.logged">
-          <b-navbar-item tag="div">
+        <b-navbar-item tag="div">
+          <template v-if="user.logged">
             <b-button
-              type="is-info"
+              type="is-warning"
               icon-left="sign-out-alt"
               icon-pack="fas"
               @click="logout()"
             >
               Logout
             </b-button>
-          </b-navbar-item>
-        </template>
+          </template>
 
-        <template v-else>
-          <b-navbar-item tag="div">
+          <template v-else>
             <b-button
-              type="is-info"
+              type="is-warning"
               @click="signup()"
             >
               Register
             </b-button>
-          </b-navbar-item>
-        </template>
+          </template>
+        </b-navbar-item>
       </div>
 
       <!-- <b-dropdown
@@ -176,7 +172,7 @@ export default {
       user: {
         firstname: 'Enger',
         lastname: 'Jimenez',
-        logged: true,
+        logged: false,
       },
     }
   },

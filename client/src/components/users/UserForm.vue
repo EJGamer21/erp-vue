@@ -1,224 +1,243 @@
 <template>
   <div class="card">
-    <div class="card-header bg-dark text-white">
-      <template v-if="user.id !== null">
-        <span>Editar usuario</span>
-      </template>
-      <template v-else>
-        <span>Registrar usuario</span>
-      </template>
-    </div>
-    <div class="card-body bg-light">
-      <form
-        method="POST"
-        action="/users/register"
-        enctype="multipart/form-data"
-        @submit.prevent
-        class="form"
-      >
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label>Nombre</label>
-              <input
-                class="form-control"
-                type="text"
-                name="firstname"
-                v-model="user.firstname"
-                autofocus
-                required
+    <header class="card-header">
+      <p class="card-header-title">
+        <template v-if="user.id !== null">
+          <span>Editar usuario</span>
+        </template>
+        <template v-else>
+          <span>Registrar usuario</span>
+        </template>
+      </p>
+    </header>
+
+    <div class="card-content">
+      <div class="content is-clearfix">
+        <form
+          method="POST"
+          action="/users/register"
+          enctype="multipart/form-data"
+          @submit.prevent="saveUser()"
+        >
+          <div class="columns">
+            <div class="column">
+              <b-field
+                label="Nombre"
+                label-position="inside"
               >
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label>Apellido</label>
-              <input
-                class="form-control"
-                type="text"
-                name="lastname"
-                v-model="user.lastname"
-                required
-              >
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label>Nombre de usuario</label>
-              <input
-                class="form-control"
-                type="text"
-                id="username"
-                name="username"
-                v-model="user.username"
-                autocomplete="username"
-                required
-              >
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label>
-                <span>Correo electr&oacute;nico&nbsp;</span>
-                <small class="text-muted">
-                  <i>Opcional</i>
-                </small>
-              </label>
-              <input class="form-control" type="email" name="email" v-model="user.email">
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label id="password-label">Contraseña</label>
-              <input
-                class="form-control"
-                type="password"
-                id="password"
-                name="password"
-                v-model="user.password"
-                autocomplete="password"
-                required
-              >
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label id="retyped-password-label">Repetir Contraseña</label>
-              <input
-                class="form-control"
-                type="password"
-                id="retyped-password"
-                v-model="user.retyped_password"
-                required
-              >
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label class="d-block">Sexo</label>
-              <div class="custom-control custom-radio custom-control-inline">
-                <input
-                  id="m-radio"
-                  type="radio"
-                  name="sex"
-                  class="custom-control-input"
-                  value="M"
-                  v-model="user.sex"
+                <b-input
+                  v-model="user.firstname"
+                  type="text"
+                  maxlength="50"
                   required
                 >
-                <label for="m-radio" class="custom-control-label">Masculino</label>
-              </div>
-              <div class="custom-control custom-radio custom-control-inline">
-                <input
-                  id="f-radio"
-                  type="radio"
-                  name="sex"
-                  class="custom-control-input"
-                  value="F"
-                  v-model="user.sex"
+                </b-input>
+              </b-field>
+            </div>
+
+            <div class="column">
+              <b-field
+                label="Apellido"
+                label-position="inside"
+              >
+                <b-input
+                  v-model="user.lastname"
+                  type="text"
+                  maxlength="50"
                   required
                 >
-                <label for="f-radio" class="custom-control-label">Femenino</label>
-              </div>
+                </b-input>
+              </b-field>
             </div>
           </div>
-          <div class="col">
-            <label>
-              <span>Direcci&oacute;n&nbsp;</span>
-              <small class="text-muted">
-                <i>Opcional</i>
-              </small>
-            </label>
-            <div class="form-row">
-              <div class="mb-2 col d-sm-block d-lg-inline">
-                <select class="custom-select" v-model="user.direction.city">
-                  <option value selected>Seleccionar ciudad...</option>
-                  <optgroup
-                    v-for="province in directions.provinces"
-                    :key="province.provincia_id"
-                    :label="province.nombre"
+          
+          <div class="columns">
+            <div class="column">
+              <b-field
+                label="Nombre de usuario"
+                label-position="inside"
+              >
+                <b-input
+                  v-model="user.username"
+                  type="text"
+                  maxlength="50"
+                  required
+                >
+                </b-input>
+              </b-field>
+            </div>
+
+            <div class="column">
+              <b-field
+                label="Correo electrónico"
+                label-position="inside"
+              >
+                <b-input
+                  v-model="user.email"
+                  type="email"
+                  maxlength="100"
+                >
+                </b-input>
+              </b-field>
+            </div>
+          </div>
+          
+          <div class="columns">
+            <div class="column">
+              <b-field
+                label="Contraseña"
+                label-position="inside"
+              >
+                <b-input
+                  v-model="user.password"
+                  type="password"
+                  maxlength="250"
+                  icon-pack="fas"
+                  password-reveal
+                  :required="passwordRequired"
+                >
+                </b-input>
+              </b-field>
+            </div>
+            
+            <div class="column">
+              <b-field
+                label="Confirmar contraseña"
+                label-position="inside"
+              >
+                <b-input
+                  v-model="user.retyped_password"
+                  type="password"
+                  maxlength="250"
+                  icon-pack="fas"
+                  password-reveal
+                  :required="passwordRequired"
+                >
+                </b-input>
+              </b-field>
+            </div>
+          </div>
+          
+          <div class="columns">
+            <div class="column">
+              <label class="label">Sexo</label>
+              <b-field>
+                <b-radio-button
+                  v-model="user.sex"
+                  native-value="M"
+                  type="is-info"
+                >
+                  <b-icon
+                    pack="fas"
+                    icon="mars"
+                  ></b-icon>
+                  <span>Masculino</span>
+                </b-radio-button>
+
+                <b-radio-button
+                  v-model="user.sex"
+                  native-value="F"
+                  type="is-danger"
+                >
+                  <b-icon
+                    pack="fas"
+                    icon="venus"
+                  ></b-icon>
+                  <span>Femenino</span>
+                </b-radio-button>
+              </b-field>
+            </div>
+
+            <div class="column">
+              <div class="columns">
+                <div class="column">
+                  <b-field
+                    label="Dirección"
+                    label-position="inside"
                   >
-                    <option
-                      v-for="city in cities[province.provincia_id]"
-                      :key="city.ciudad_id"
-                      :value="city.ciudad_id"
+                    <b-select
+                      placeholder="Seleccionar ciudad"
+                      v-model="user.direction.city"
                     >
-                      <span>{{ city.nombre }}</span>
-                    </option>
-                  </optgroup>
-                </select>
+                      <optgroup
+                        v-for="province in directions.provinces"
+                        :key="province.provincia_id"
+                        :label="province.nombre"
+                      >
+                        <option
+                          v-for="city in cities[province.provincia_id]"
+                          :key="city.ciudad_id"
+                          :value="city.ciudad_id"
+                        >
+                          <span>{{ city.nombre }}</span>
+                        </option>
+                      </optgroup>
+                    </b-select>
+                  </b-field>
+
+                </div>
+
+                <div class="column">
+                  <b-field
+                    label="Rol"
+                    label-position="inside"
+                  >
+                    <b-select placeholder="Seleccionar rol">
+                      <option value="1">Admin</option>
+                    </b-select>
+                  </b-field>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="hr"></div>
-        <div class="form-row">
-          <div class="mb-2 col d-sm-block d-lg-inline" id="image-picker">
-            <label>
-              <span>Foto de perfil&nbsp;</span>
-              <small class="text-muted">
-                <i>Opcional</i>
-              </small>
-            </label>
-            <!-- <div class="file has-name">
-              <label class="file-label">
-                <input
-                  class="file-input"
-                  type="file"
-                  accept="image/*"
+
+          <div class="hr"></div>
+
+          <div class="columns">
+            <div class="column">
+              <b-field>
+                <b-upload 
+                  v-model="file"
+                  drag-drop
                   name="user-image"
-                  ref="userImage"
-                  :disabled="isUploading"
-                  @change="onImageChange"
+                  accept="image/*"
                 >
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i class="fas fa-upload"></i>
-                  </span>
-                  <span class="file-label">
-                    Elige un archivo...
-                  </span>
-                </span>
-                <span class="file-name">{{ user.image }}</span>
-              </label>
-            </div> -->
-            <input
-              class="form-control-file"
-              type="file"
-              accept="image/*"
-              name="image"
-              ref="userImage"
-              :disabled="isUploading"
-              @change="onImageChange"
-            >
-            <p v-if="isInitial">Arrastra o selecciona alguna imagen.</p>
-            <p v-if="isUploading">Subiendo imagen...</p>
+                  <section class="section">
+                    <div class="content has-text-centered">
+                    <p>
+                        <b-icon
+                        pack="fas"
+                        icon="upload"
+                        size="is-large"
+                        >
+                        </b-icon>
+                    </p>
+                    <p>Drop your files here or click to upload</p>
+                    </div>
+                  </section>
+                </b-upload>
+              </b-field>
+              <b-field>
+                <b-message v-if="file">
+                  {{ file.name }}
+                </b-message>
+              </b-field>
+            </div>
           </div>
-        </div>
-        <div class="form-row">
-          <div class="col-4 offset-8">
-            <div class="float-right">
-              <button
-                id="clear-btn"
-                type="button"
+
+          <b-field class="is-pulled-right">
+            <div class="buttons">
+              <b-button
                 title="Limpiar campos"
-                class="btn btn-link"
+                type="is-text"
                 @click="clearInputs()"
               >
                 <span>Limpiar</span>
-              </button>
-              <button
-                id="submit-btn"
-                type="submit"
+              </b-button>
+              <b-button
                 title="Registrar usuario"
-                class="btn btn-success"
-                @click="saveUser()"
+                type="is-primary"
+                native-type="submit"
               >
                 <template v-if="user.id !== null">
                   <span>Guardar</span>
@@ -226,11 +245,11 @@
                 <template v-else>
                   <span>Registrar</span>
                 </template>
-              </button>
+              </b-button>
             </div>
-          </div>
-        </div>
-      </form>
+          </b-field>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -248,7 +267,7 @@ export default {
       user: {
         id: null,
         index: "",
-        username: "",
+        username: null,
         firstname: "",
         lastname: "",
         email: "",
@@ -260,7 +279,7 @@ export default {
         direction_id: "",
         direction: {
           province: "",
-          city: ""
+          city: null
         },
         fecha_creacion: "",
         fecha_modificado: ""
@@ -269,8 +288,8 @@ export default {
         provinces: [],
         cities: []
       },
-      isUploading: false,
-      isInitial: true
+      passwordRequired: true,
+      file: null
     };
   },
   computed: {
@@ -300,26 +319,29 @@ export default {
       }, {});
     }
   },
-  mounted() {
-    // axios
-    //   .get("localhost:8081/users")
-    //   .then(response => {
-    //     let direcciones = response.data;
-    //     Object.keys(direcciones).forEach(key => {
-    //       this.directions[key] = direcciones[key].sort((a, b) => {
-    //         if (a.nombre > b.nombre) {
-    //           return 1;
-    //         }
-    //         if (a.nombre < b.nombre) {
-    //           return -1;
-    //         }
-    //         return 0;
-    //       });
-    //     });
-    //   })
-    //   .catch(error => {
-    //     console.log(error, error.response);
-    //   });
+  async mounted() {
+    try {
+      const response = await axios.get("http://localhost:8081/directions");
+      const direcciones = response.data;
+      console.log(response);
+
+      Object.keys(direcciones).forEach(key => {
+        this.directions[key] = direcciones[key].sort((a, b) => {
+          if (a.nombre > b.nombre) {
+            return 1;
+          }
+          if (a.nombre < b.nombre) {
+            return -1;
+          }
+          return 0;
+        });
+      });
+
+      console.log(this.directions);
+    } catch(error) {
+        console.log(error, error.response);
+    }
+
     EventBus.$on("edit-user", user => {
       console.log(user);
       Object.assign(this.user, user);

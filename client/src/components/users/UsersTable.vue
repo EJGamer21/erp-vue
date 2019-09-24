@@ -1,120 +1,140 @@
 <template>
-  <!-- <div class="table-responsive mt-4" v-cloak>
-    <table id="users-table" class="table table-striped table-hover centered">
-      <caption>Listado de usuarios</caption>
-      <thead class="thead-dark">
-        <tr>
-          <th>Usuario</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Creaci&oacute;n</th>
-          <th style="text-align:center;">
-            <i class="fas fa-bars"></i>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(user, index) in users" :key="user.id" :id="user.id">
-          <td>
-            <a
-              :href="'/users/view/' + user.id + '/' +
-                            (user.firstname + '-' + user.lastname).toLowerCase()"
-            >
-              <template v-if="user.activo == 1">
-                <span title="Activo" class="badge badge-success">
+  <div>
+    <section>
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span>Showing&nbsp;</span>
+            <b-select v-model="perPage">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </b-select>
+            <span>&nbsp;entries</span>
+          </div>
+        </div>
+
+        <div class="level-right">
+          <div class="level-item">
+            <b-field>
+              <b-input
+                type="search"
+                placeholder="Search..."
+                icon-pack="fas"
+                icon="search"
+              >
+              </b-input>
+              <p class="control">
+                <b-button type="is-primary">
+                  Search
+                </b-button>
+              </p>
+            </b-field>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <b-table
+        :data="users"
+        :loading="isLoading"
+        :per-page="perPage"
+        paginated
+        striped
+        hoverable
+        mobile-cards
+        :default-sort="['fecha_creacion', 'desc']"
+        icon-pack="fas"
+        sort-icon="chevron-up"
+        aria-next-label="Next Page"
+        aria-previous-label="Previous Page"
+        aria-page-label="Page"
+        aria-current-label="Current Page"
+      >
+        <template slot-scope="props">
+          <b-table-column field="username" label="Username" sortable>
+            <div>
+              <template v-if="props.row.activo == 1">
+                <b-tag
+                  title="Activo"
+                  type="is-success"
+                >
                   <i class="fas fa-user-check"></i>
-                </span>
+                </b-tag>
               </template>
               <template v-else>
-                <span title="Inactivo" class="badge badge-danger">
+                <b-tag
+                  title="Inactivo"
+                  type="is-danger"
+                >
                   <i class="fas fa-user-times"></i>
-                </span>
+                </b-tag>
               </template>
-              <span>{{ user.username }}</span>
-            </a>
-          </td>
-          <td>
-            <a
-              :href="'/users/view/' + user.id + '/' +
-                            (user.firstname + '-' + user.lastname).toLowerCase()"
-            >
-              <span>{{ user.firstname + ' ' + user.lastname }}</span>
-            </a>
-          </td>
-          <td>
-            <a
-              :href="'/users/view/' + user.id + '/' +
-                            (user.firstname + '-' + user.lastname).toLowerCase()"
-            >
-              <span>{{ user.email }}</span>
-            </a>
-          </td>
-          <td>
-            <a
-              :href="'/users/view/' + user.id + '/' +
-                            (user.firstname + '-' + user.lastname).toLowerCase()"
-            >
-              <span>{{ user.fecha_creacion }}</span>
-            </a>
-          </td>
-          <td style="text-align:center;">
-            <button
-              title="Editar usuario"
-              type="button"
-              class="edit-btn btn btn-info"
-              @click="emitEditUser(user)"
-            >
-              <i class="fas fa-pencil-alt"></i>
-            </button>
-            <template v-if="user.activo == 1">
-              <button
-                title="Desactivar usuario"
-                type="button"
-                class="btn btn-outline-danger"
-                @click="toggleUserStatus(user, index)"
-              >
-                <i class="fas fa-user-times"></i>
-              </button>
+              {{ props.row.username }}
+            </div>
+          </b-table-column>
+
+          <b-table-column field="firstname" label="Nombre" sortable>
+            {{ props.row.firstname }} {{ props.row.lastname }}
+          </b-table-column>
+
+          <b-table-column field="email" label="Email" sortable>
+            {{ props.row.email }}
+          </b-table-column>
+
+          <b-table-column field="fecha_creacion" label="Creación" sortable>
+            {{ props.row.fecha_creacion }}
+          </b-table-column>
+
+          <b-table-column centered>
+            <template slot="header">
+              <i class='fas fa-bars'></i>
             </template>
-            <template v-else>
-              <button
-                title="Activar usuario"
-                type="button"
-                class="btn btn-outline-success"
-                @click="toggleUserStatus(user, index)"
+            
+            <div>
+              <b-button
+                title="Editar usuario"
+                type="is-info"
+                @click="emitEditUser(props.row)"
               >
-                <i class="fas fa-user-check"></i>
-              </button>
-            </template>
-            <button
-              type="button"
-              title="Ver usuario"
-              class="btn btn-dark"
-              @click="emitShowModal(user, index)"
-            >
-              <i class="fas fa-eye"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div> -->
-  <section class="section">
-    <b-table
-      :data="users"
-      :loading="isLoading"
-      striped
-      hoverable
-      focusable
-      mobile-cards
-    >
-      <template slot-scope="props">
-        <b-table-column field="fullname" label="Username">
-          {{ props.row.username }}
-        </b-table-column>
-      </template>
-    </b-table>
-  </section>
+                <i class="fas fa-pencil-alt"></i>
+              </b-button>
+              <template v-if="props.row.activo == 1">
+                <b-button
+                  title="Desactivar usuario"
+                  type="is-danger"
+                  outlined
+                  @click="toggleUserStatus(props.row)"
+                >
+                  <i class="fas fa-user-times"></i>
+                </b-button>
+              </template>
+              <template v-else>
+                <b-button
+                  title="Activar usuario"
+                  type="is-success"
+                  outlined
+                  @click="toggleUserStatus(props.row)"
+                >
+                  <i class="fas fa-user-check"></i>
+                </b-button>
+              </template>
+              <b-button
+                title="Ver usuario"
+                type="is-dark"
+                @click="emitShowModal(props.row)"
+              >
+                <i class="fas fa-eye"></i>
+              </b-button>
+            </div>
+          </b-table-column>
+        </template>
+      </b-table>
+    </section>
+  </div>
 </template>
 
 <script>
@@ -127,7 +147,8 @@ export default {
   name: 'users-table',
   data() {
     return {
-      users: []
+      users: [],
+      perPage: 10,
     };
   },
 

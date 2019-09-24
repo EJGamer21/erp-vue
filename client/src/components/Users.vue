@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <h1 class="title">Usuarios</h1>
+  <section>
+    <h1 class="is-size-1">Usuarios</h1>
     <user-form></user-form>
     <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
     <user-modal v-if="modalIsVisible" :user="user" @close-modal="closeModal"></user-modal>
-  </div>
+  </section>
 </template>
 
 <script>

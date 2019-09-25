@@ -9,13 +9,9 @@ import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import '../style.css'
 import { loadProgressBar } from 'axios-progress-bar'
-import Toastr from 'vue2-toastr'
-import 'vue2-toastr/dist/css/vue2-toastr.css'
-import { toastConfigs } from './mixins/mixin'
 
 loadProgressBar()
 
-Vue.use(Toastr, toastConfigs)
 Vue.use(Buefy)
 Vue.use(VueSession, { persist: true })
 

@@ -93,7 +93,7 @@
             <template slot="header">
               <i class='fas fa-bars'></i>
             </template>
-            
+
             <div>
               <b-button
                 title="Editar usuario"
@@ -139,9 +139,9 @@
 
 <script>
 import { EventBus } from '@/EventBus';
+import { toastr, showAlert } from '@/mixins/mixin';
 import axios from 'axios';
 import swal from 'sweetalert';
-import { toastConfigs, showAlert } from '@/mixins/mixin';
 
 export default {
   name: 'users-table',
@@ -224,7 +224,7 @@ export default {
           } catch (error) {
             if (error.response) {
               console.log(error.response);
-              this.$toastr.error(error.response.data, 'Error', toastConfigs);
+              // this.$toastr.error(error.response.data, 'Error', toastConfigs);
             }
           }
         }
@@ -256,11 +256,11 @@ export default {
           } catch (error) {
             if (error.response) {
               console.log(error.response);
-              this.$toastr.error(
-                error.response.data.message,
-                'Error',
-                toastConfigs
-              );
+              // this.$toastr.error(
+              //   error.response.data.message,
+              //   'Error',
+              //   toastConfigs
+              // );
             }
           }
         }

@@ -17,7 +17,7 @@
           method="POST"
           action="/users/register"
           enctype="multipart/form-data"
-          @submit.prevent="saveUser()"
+          @submit.prevent
         >
           <div class="columns">
             <div class="column">
@@ -50,7 +50,7 @@
               </b-field>
             </div>
           </div>
-          
+
           <div class="columns">
             <div class="column">
               <b-field
@@ -81,7 +81,7 @@
               </b-field>
             </div>
           </div>
-          
+
           <div class="columns">
             <div class="column">
               <b-field
@@ -91,7 +91,7 @@
                 <b-input
                   v-model="user.password"
                   type="password"
-                  maxlength="250"
+                  maxlength="25"
                   icon-pack="fas"
                   password-reveal
                   :required="passwordRequired"
@@ -99,16 +99,16 @@
                 </b-input>
               </b-field>
             </div>
-            
+
             <div class="column">
               <b-field
                 label="Confirmar contraseña"
                 label-position="inside"
               >
                 <b-input
-                  v-model="user.retyped_password"
+                  v-model="user.retypedPassword"
                   type="password"
-                  maxlength="250"
+                  maxlength="25"
                   icon-pack="fas"
                   password-reveal
                   :required="passwordRequired"
@@ -117,15 +117,16 @@
               </b-field>
             </div>
           </div>
-          
+
           <div class="columns">
             <div class="column">
               <label class="label">Sexo</label>
               <b-field>
                 <b-radio-button
-                  v-model="user.sex"
+                  v-model="user.sexo"
                   native-value="M"
                   type="is-info"
+                  required
                 >
                   <b-icon
                     pack="fas"
@@ -135,9 +136,10 @@
                 </b-radio-button>
 
                 <b-radio-button
-                  v-model="user.sex"
+                  v-model="user.sexo"
                   native-value="F"
                   type="is-danger"
+                  required
                 >
                   <b-icon
                     pack="fas"
@@ -159,6 +161,12 @@
                       placeholder="Seleccionar ciudad"
                       v-model="user.direction.city"
                     >
+                      <option
+                        selected
+                        :value="null"
+                      >
+                        Seleccionar ciudad
+                      </option>
                       <optgroup
                         v-for="province in directions.provinces"
                         :key="province.provincia_id"
@@ -182,8 +190,24 @@
                     label="Rol"
                     label-position="inside"
                   >
-                    <b-select placeholder="Seleccionar rol">
-                      <option value="1">Admin</option>
+                    <b-select
+                      placeholder="Seleccionar rol"
+                      v-model="user.role_id"
+                    >
+                      <option
+                        :value="null"
+                        selected
+                      >
+                        Seleccionar rol
+                      </option>
+
+                      <option
+                        v-for="role in roles"
+                        :key="role.id"
+                        :value="role.id"
+                      >
+                        {{ role.rol }}
+                      </option>
                     </b-select>
                   </b-field>
                 </div>
@@ -195,32 +219,35 @@
 
           <div class="columns">
             <div class="column">
-              <b-field>
-                <b-upload 
-                  v-model="file"
-                  drag-drop
-                  name="user-image"
-                  accept="image/*"
-                >
-                  <section class="section">
-                    <div class="content has-text-centered">
-                    <p>
-                        <b-icon
-                        pack="fas"
-                        icon="upload"
-                        size="is-large"
-                        >
-                        </b-icon>
-                    </p>
-                    <p>Drop your files here or click to upload</p>
-                    </div>
-                  </section>
-                </b-upload>
-              </b-field>
-              <b-field>
-                <b-message v-if="file">
-                  {{ file.name }}
-                </b-message>
+              <b-field grouped group-multiline>
+                <b-field>
+                  <b-upload
+                    v-model="file"
+                    drag-drop
+                    name="user-image"
+                    accept="image/*"
+                  >
+                    <section class="section">
+                      <div class="content has-text-centered">
+                      <p>
+                          <b-icon
+                          pack="fas"
+                          icon="upload"
+                          size="is-large"
+                          >
+                          </b-icon>
+                      </p>
+                      <p>Drop your files here or click to upload</p>
+                      </div>
+                    </section>
+                  </b-upload>
+                </b-field>
+
+                <b-field>
+                  <b-message v-if="file">
+                    {{ file.name }}
+                  </b-message>
+                </b-field>
               </b-field>
             </div>
           </div>
@@ -238,6 +265,7 @@
                 title="Registrar usuario"
                 type="is-primary"
                 native-type="submit"
+                @click="saveUser()"
               >
                 <template v-if="user.id !== null">
                   <span>Guardar</span>
@@ -256,9 +284,9 @@
 
 <script>
 import { EventBus } from "@/EventBus.js";
+import { toastr, showAlert } from "@/mixins/mixin";
 import swal from "sweetalert";
 import axios from "axios";
-import { toastConfigs, showAlert } from "@/mixins/mixin";
 
 export default {
   name: "UserForm",
@@ -266,32 +294,36 @@ export default {
     return {
       user: {
         id: null,
-        index: "",
+        index: null,
         username: null,
-        firstname: "",
-        lastname: "",
-        email: "",
-        email_id: "",
-        password: "",
-        retyped_password: "",
-        sex: "",
-        image: "",
-        direction_id: "",
+        firstname: null,
+        lastname: null,
+        email: null,
+        email_id: null,
+        password: null,
+        retypedPassword: null,
+        sexo: null,
+        image: null,
+        direction_id: null,
         direction: {
-          province: "",
+          province: null,
           city: null
         },
-        fecha_creacion: "",
-        fecha_modificado: ""
+        fecha_creacion: null,
+        fecha_modificado: null,
+        rol: null,
+        role_id: null
       },
       directions: {
         provinces: [],
         cities: []
       },
+      roles: [],
       passwordRequired: true,
       file: null
     };
   },
+
   computed: {
     addresses() {
       let cities = this.directions.cities.reduce((accumulator, value) => {
@@ -319,40 +351,48 @@ export default {
       }, {});
     }
   },
+
+  watch: {
+    file: function(oldValue, newValue) {
+      const reader = new FileReader();
+      reader.onload = e => e.target.result;
+      reader.readAsText(oldValue);
+    }
+  },
+
   async mounted() {
     try {
-      const response = await axios.get("http://localhost:8081/directions");
-      const direcciones = response.data;
-      console.log(response);
+      const provinces = await axios.get('http://localhost:8081/provinces');
+      const cities = await axios.get('http://localhost:8081/cities');
+      const roles = await axios.get('http://localhost:8081/roles');
 
-      Object.keys(direcciones).forEach(key => {
-        this.directions[key] = direcciones[key].sort((a, b) => {
-          if (a.nombre > b.nombre) {
-            return 1;
-          }
-          if (a.nombre < b.nombre) {
-            return -1;
-          }
-          return 0;
-        });
+      this.directions.provinces = provinces.data;
+      this.directions.cities = cities.data;
+      this.roles = roles.data.sort((a, b) => {
+        if (a.rol > b.rol) {
+          return 1;
+        }
+        if (a.rol < b.rol) {
+          return -1;
+        }
+        return 0;
       });
-
-      console.log(this.directions);
     } catch(error) {
         console.log(error, error.response);
     }
 
     EventBus.$on("edit-user", user => {
-      console.log(user);
       Object.assign(this.user, user);
+      this.passwordRequired = false;
       this.user.password = "";
-      this.user.retyped_password = "";
+      this.user.retypedPassword = "";
       this.user.direction = {
         province: "",
         city: ""
       };
     });
   },
+
   methods: {
     clearInputs() {
       for (const key in this.user) {
@@ -360,6 +400,7 @@ export default {
           this.user[key] = "";
         }
       }
+      this.passwordRequired = true;
       this.user.id = null;
       this.user.direction = {
         province: "",
@@ -367,107 +408,98 @@ export default {
       };
     },
 
-    onImageChange() {
-      this.isInitial = false;
-      this.user.image = this.$refs.userImage.files[0].name
-      console.log("H");
-    },
-
     async saveUser() {
       if (
-        this.user.username === ""
-        || this.user.password === ""
-        || this.user.retyped_password === ""
-        || this.user.firstname === ""
-        || this.user.lastname === ""
-        || this.user.sex === ""
+        this.user.username
+        && this.user.firstname
+        && this.user.password
+        && this.user.retypedPassword
+        && this.user.lastname
+        && this.user.sexo
       ) {
-        this.$toast.error({
-          title: "Error",
-          message: "Campos no opcionales son requeridos.",
-          toastConfigs
-        });
+        if (this.user.password !== this.user.retypedPassword) {
+          toastr('La contraseña debe coincidir', 'is-danger');
+          return;
+        }
+
+        let userData = new FormData();
+        userData.append("id", this.user.id);
+        userData.append("firstname", this.user.firstname);
+        userData.append("lastname", this.user.lastname);
+        userData.append("username", this.user.username);
+        userData.append("email", this.user.email);
+        userData.append("password", this.user.password);
+        userData.append("sex", this.user.sex);
+        userData.append("fecha_creacion", this.user.fecha_creacion);
+
+        if (this.file) {
+          userData.append(
+            "image",
+            this.file,
+            this.file.name
+          );
+        }
+
+        console.log(userData);
         return;
-      }
 
-      if (this.user.password !== this.user.retyped_password) {
-        this.$toast.error({
-          title: "Error",
-          message: "Las constraseñas deben coincidir.",
-          toastConfigs
-        });
-        return;
-      }
+        try {
+          const confirmation = await swal({
+            title: "Confirmar registro",
+            icon: "warning",
+            buttons: ["Cancelar", "Confirmo"]
+          });
 
-      let userData = new FormData();
-      userData.append("id", this.user.id);
-      userData.append("firstname", this.user.firstname);
-      userData.append("lastname", this.user.lastname);
-      userData.append("username", this.user.username);
-      userData.append("email", this.user.email);
-      userData.append("password", this.user.password);
-      userData.append("sex", this.user.sex);
-      userData.append("fecha_creacion", this.user.fecha_creacion);
+          if (confirmation) {
+            try {
+              const response = await axios.post("http://localhost:8081/users", userData, {
+                headers: {
+                  "Content-Type": "multipart/form-data"
+                }
+              });
 
-      if (this.$refs.userimage.files[0]) {
-        console.log('loaded');
-        userData.append(
-          "image",
-          this.$refs.userimage.files[0],
-          this.$refs.userimage.files[0].name
-        );
-      }
+              console.log(response);
 
-      try {
-        const confirmation = await swal({
-          title: "Confirmar registro",
-          icon: "warning",
-          buttons: ["Cancelar", "Confirmo"]
-        });
+              if (response.data.status === "success") {
+                this.clearInputs();
 
-        if (confirmation) {
-          try {
-            const response = await axios.post("/users/register", userData, {
-              headers: {
-                "Content-Type": "multipart/form-data"
+                showAlert("Notificación", response.data.message, "success", 2000);
+                this.users.splice(0, 0, response.data.user);
               }
-            });
 
-            console.log(response);
+              else if (response.data.status === "info") {
+                this.clearInputs();
 
-            if (response.data.status === "success") {
-              this.clearInputs();
+                let updatedUser = response.data.user;
+                let existingUser = this.users.find(
+                  user => user.id === updatedUser.id
+                );
+                let index = this.users.indexOf(existingUser);
 
-              showAlert("Notificación", response.data.message, "success", 2000);
-              this.users.splice(0, 0, response.data.user);
-            } else if (response.data.status === "info") {
-              this.clearInputs();
+                this.users.splice(index, 1, updatedUser);
+                showAlert("Información", response.data.message, "info", 2000);
+              }
+            } catch (error) {
+              if (error.response) {
+                this.user.password = "";
+                this.user.retypedPassword = "";
 
-              let updatedUser = response.data.user;
-              let existingUser = this.users.find(
-                user => user.id === updatedUser.id
-              );
-              let index = this.users.indexOf(existingUser);
-
-              this.users.splice(index, 1, updatedUser);
-              showAlert("Información", response.data.message, "info", 2000);
-            }
-          } catch (error) {
-            if (error.response) {
-              this.user.password = "";
-              this.user.retyped_password = "";
-
-              this.$toastr.error(
-                error.response.data.message,
-                "Error",
-                toastConfigs
-              );
+                this.$toastr.error(
+                  error.response.data.message,
+                  "Error",
+                  toastConfigs
+                );
+              }
             }
           }
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error) {
-        console.log(error);
+      } else {
+        toastr('Campos no opcionales son requeridos.', 'is-danger');
+        return;
       }
+
     }
   }
 };

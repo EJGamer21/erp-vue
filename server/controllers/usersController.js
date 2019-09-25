@@ -1,13 +1,15 @@
 'use strict';
 
-const usersModel = require('../models/usersModel');
+const userModel = require('../models/userModel');
+const roleModel = require('../models/roleModel');
 const moment = require('moment');
-const api = new usersModel();
+const user = new userModel();
+const role = new roleModel();
 
 module.exports = {
     getAll: async (req, res) => {
         try {
-            const users = await api.getAll();
+            const users = await user.getAll();
             users.forEach(user => {
                 if (moment(user.fecha_creacion).isValid()) {
                     user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
@@ -35,7 +37,7 @@ module.exports = {
     getById: async (req, res) => {
         const id = parseInt(req.params.id);
         try {
-            const user = await api.getById(id);
+            const user = await user.getById(id);
             if (moment(user[0].fecha_creacion).isValid()) {
                 user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
             } else {
@@ -84,7 +86,7 @@ module.exports = {
         }
 
         try {
-            const exisitingUser = await api.getWhere(null, [`username = '${newUser.username}'`]);
+            const exisitingUser = await user.getWhere(null, [`username = '${newUser.username}'`]);
 
             if (exisitingUser.length === 0) {
                 /**
@@ -94,7 +96,7 @@ module.exports = {
                  * insert new direction or use an existing one
                  */
 
-                const user = await api.createUser(newUser);
+                const user = await user.createUser(newUser);
                 res.json({
                     error: false,
                     status: 'success',
@@ -132,7 +134,7 @@ module.exports = {
                 role_id: parseInt(req.body.role_id),
                 image: req.body.image
             }
-            const response = await api.updateUser(id, user);
+            const response = await user.updateUser(id, user);
             console.log('controller');
             console.log(response);
         } catch (error) {
@@ -144,7 +146,7 @@ module.exports = {
     delete: async (req, res) => {
         const id = parseInt(req.params.id);
         try {
-            const deleted = await api.delete(id);
+            const deleted = await user.delete(id);
             console.log(deleted);
             if (deleted) {
                 res.json({
@@ -176,8 +178,8 @@ module.exports = {
         const id = parseInt(req.params.id);
         try {
             const status = { activo: req.body.activo }
-            const userId = await api.updateUser(id, status);
-            const user = await api.getById(userId);
+            const userId = await user.updateUser(id, status);
+            const user = await user.getById(userId);
             if (moment(user[0].fecha_creacion).isValid()) {
                 user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
             } else {
@@ -201,4 +203,17 @@ module.exports = {
             return new Error(error);
         }
     },
+
+    getAllRoles: async (req, res) => {
+        try {
+            const roles = await role.getAll();
+            res.json(roles);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({
+                error: true,
+                message: 'Error 500: Internal server error',
+            });
+        }        
+    }
 }

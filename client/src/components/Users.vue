@@ -2,6 +2,7 @@
   <section>
     <h1 class="is-size-1">Usuarios</h1>
     <user-form></user-form>
+    <div class="hr"></div>
     <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
     <user-modal v-if="modalIsVisible" :user="user" @close-modal="closeModal"></user-modal>
   </section>

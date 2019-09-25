@@ -85,8 +85,6 @@
             type="is-info"
             inverted
             outlined
-            icon-left="sign-in-alt"
-            icon-pack="fas"
             @click="login()"
           >
             Login
@@ -110,6 +108,8 @@
           <template v-else>
             <b-button
               type="is-warning"
+              icon-left="sign-in-alt"
+              icon-pack="fas"
               @click="signup()"
             >
               Register
@@ -183,9 +183,11 @@ export default {
   },
   methods: {
     logout() {
+      this.user.logged = false;
       console.log('logged out');
     },
     login() {
+      this.user.logged = true;
       console.log('logged in');
     },
     signup() {

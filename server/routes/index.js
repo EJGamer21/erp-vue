@@ -5,10 +5,16 @@ const router = express.Router();
 
 const userRoute = require('./users');
 const directionRoute = require('./directions');
-const clientRoute = require('./clients');
+const provinceRoute = require('./provinces');
+const cityRoute = require('./cities');
+const roleRoute = require('./roles');
+// const clientRoute = require('./clients');
 
 router.use('/users', userRoute);
 router.use('/directions', directionRoute);
-router.use('/clients', clientRoute);
+router.use('/provinces', provinceRoute);
+router.use('/cities', cityRoute);
+router.use('/roles', roleRoute);
+// router.use('/clients', clientRoute);
 
 module.exports = router;

@@ -39,7 +39,7 @@
 
     <section>
       <b-table
-        :data="users"
+        :data="(isEmpty) ? [] : users"
         :loading="isLoading"
         :per-page="perPage"
         paginated
@@ -132,6 +132,23 @@
             </div>
           </b-table-column>
         </template>
+
+        <template slot="empty">
+          <section
+            v-if="isEmpty"
+            class="section">
+              <div class="content has-text-grey has-text-centered">
+                <p>
+                  <b-icon
+                    pack="far"
+                    icon="frown"
+                    size="is-large">
+                  </b-icon>
+                </p>
+                <p>Nothing here.</p>
+              </div>
+          </section>
+        </template>
       </b-table>
     </section>
   </div>
@@ -149,17 +166,19 @@ export default {
     return {
       users: [],
       perPage: 10,
+      isEmpty: false
     };
   },
 
   computed: {
     isLoading() {
-      return (this.users.length > 1) ? false : true;
+      return (this.users && this.users.length === 0) ? true : false;
     }
   },
 
   async mounted() {
     try {
+      console.log(this.users);
       const response = await axios.get('http://localhost:8081/users');
       this.users = response.data.sort((a, b) => {
         if (a.fecha_creacion < b.fecha_creacion) {
@@ -175,6 +194,8 @@ export default {
         user.fullname = `${user.firstname} ${user.lastname}`
       });
     } catch (error) {
+      this.isEmpty = true;
+      this.users = false;
       console.log(new Error(error));
     };
 

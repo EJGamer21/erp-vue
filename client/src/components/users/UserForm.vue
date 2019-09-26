@@ -15,7 +15,7 @@
       <div class="content is-clearfix">
         <form
           method="POST"
-          action="/users/register"
+          action="/users"
           enctype="multipart/form-data"
           @submit.prevent
         >
@@ -265,6 +265,7 @@
                 title="Registrar usuario"
                 type="is-primary"
                 native-type="submit"
+                :disabled="isSaving"
                 @click="saveUser()"
               >
                 <template v-if="user.id !== null">
@@ -287,6 +288,8 @@ import { EventBus } from "@/EventBus.js";
 import { toastr, showAlert } from "@/mixins/mixin";
 import swal from "sweetalert";
 import axios from "axios";
+
+const server = `http://localhost:8081`;
 
 export default {
   name: "UserForm",
@@ -320,7 +323,8 @@ export default {
       },
       roles: [],
       passwordRequired: true,
-      file: null
+      file: null,
+      isSaving: false
     };
   },
 
@@ -354,17 +358,21 @@ export default {
 
   watch: {
     file: function(oldValue, newValue) {
+      this.user.image = this.file.name;
+
       const reader = new FileReader();
-      reader.onload = e => e.target.result;
-      reader.readAsText(oldValue);
+      reader.onload = function(e) {
+        this.file = e.target.result;
+      }
+      reader.readAsDataURL(oldValue);
     }
   },
 
   async mounted() {
     try {
-      const provinces = await axios.get('http://localhost:8081/provinces');
-      const cities = await axios.get('http://localhost:8081/cities');
-      const roles = await axios.get('http://localhost:8081/roles');
+      const provinces = await axios.get(`${server}/provinces`);
+      const cities = await axios.get(`${server}/cities`);
+      const roles = await axios.get(`${server}/roles`);
 
       this.directions.provinces = provinces.data;
       this.directions.cities = cities.data;
@@ -422,26 +430,23 @@ export default {
           return;
         }
 
-        let userData = new FormData();
-        userData.append("id", this.user.id);
-        userData.append("firstname", this.user.firstname);
-        userData.append("lastname", this.user.lastname);
-        userData.append("username", this.user.username);
-        userData.append("email", this.user.email);
-        userData.append("password", this.user.password);
-        userData.append("sex", this.user.sex);
-        userData.append("fecha_creacion", this.user.fecha_creacion);
+        let formData = new FormData();
+        formData.append("id", this.user.id);
+        formData.append("firstname", this.user.firstname);
+        formData.append("lastname", this.user.lastname);
+        formData.append("username", this.user.username);
+        formData.append("email", this.user.email);
+        formData.append("password", this.user.password);
+        formData.append("sexo", this.user.sexo);
+        formData.append("role_id", this.user.role_id);
 
         if (this.file) {
-          userData.append(
+          formData.append(
             "image",
             this.file,
-            this.file.name
+            this.user.image
           );
         }
-
-        console.log(userData);
-        return;
 
         try {
           const confirmation = await swal({
@@ -451,10 +456,11 @@ export default {
           });
 
           if (confirmation) {
+            this.isSaving = true;
             try {
-              const response = await axios.post("http://localhost:8081/users", userData, {
+              const response = await axios.post(`${server}/users`, formData, {
                 headers: {
-                  "Content-Type": "multipart/form-data"
+                  "content-Type": "multipart/form-data"
                 }
               });
 
@@ -479,27 +485,24 @@ export default {
                 this.users.splice(index, 1, updatedUser);
                 showAlert("Información", response.data.message, "info", 2000);
               }
+              this.isSaving = false;
             } catch (error) {
               if (error.response) {
                 this.user.password = "";
                 this.user.retypedPassword = "";
-
-                this.$toastr.error(
-                  error.response.data.message,
-                  "Error",
-                  toastConfigs
-                );
+                toastr(error.response.data.message, 'is-danger');
               }
+              this.isSaving = false;
             }
           }
         } catch (error) {
           console.log(error);
+          this.isSaving = false;
         }
       } else {
         toastr('Campos no opcionales son requeridos.', 'is-danger');
         return;
       }
-
     }
   }
 };

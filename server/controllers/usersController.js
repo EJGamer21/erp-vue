@@ -2,218 +2,254 @@
 
 const userModel = require('../models/userModel');
 const roleModel = require('../models/roleModel');
+const formidable = require('formidable');
 const moment = require('moment');
+const config = require('../configs/global_config');
 const user = new userModel();
 const role = new roleModel();
 
 module.exports = {
-    getAll: async (req, res) => {
-        try {
-            const users = await user.getAll();
-            users.forEach(user => {
-                if (moment(user.fecha_creacion).isValid()) {
-                    user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
-                } else {
-                    user.fecha_creacion = '';
-                }
-
-                if (moment(user.fecha_modificado).isValid()) {
-                    user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
-                } else {
-                    user.fecha_modificado = '';
-                }
-                
-            });
-            res.json(users);
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({
-                error: true,
-                message: 'Error 500: Internal server error',
-            });
-        }
-    },
-
-    getById: async (req, res) => {
-        const id = parseInt(req.params.id);
-        try {
-            const user = await user.getById(id);
-            if (moment(user[0].fecha_creacion).isValid()) {
-                user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                user[0].fecha_creacion = '';
-            }
-
-            if (moment(user[0].fecha_modificado).isValid()) {
-                user[0].fecha_modificado = moment(user[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                user[0].fecha_modificado = '';
-            }
-            res.json(user);
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({
-                error: true,
-                message: 'Error 500: Internal server error',
-            });
-        }
-    },
-
-    create: async (req, res) => {
-        const newUser = {
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            sexo: req.body.sexo,
-            username: req.body.username,
-            password: req.body.password,
-            fecha_creacion: moment().format('YYYY-MM-DD HH:mm:ss'),
-            role_id: parseInt(req.body.role_id),
-            image: req.body.image
+  getAll: async (req, res) => {
+    try {
+      const users = await user.getAll();
+      users.forEach(user => {
+        if (moment(user.fecha_creacion).isValid()) {
+            user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+        } else {
+            user.fecha_creacion = '';
         }
 
-        if (req.body.firstname === ''
-            || req.body.lastname === ''
-            || req.body.username === ''
-            || req.body.password === ''
-            || req.body.sexo === ''
-        ) {
-            res.status(400).json({
-                error: true,
-                status: 'error',
-                message: 'Campos no opcionales son requeridos.',
-            });
-            return;
+        if (moment(user.fecha_modificado).isValid()) {
+            user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+        } else {
+            user.fecha_modificado = '';
         }
-
-        try {
-            const exisitingUser = await user.getWhere(null, [`username = '${newUser.username}'`]);
-
-            if (exisitingUser.length === 0) {
-                /**
-                 * TODO:
-                 * insert new email or use an existing one
-                 * 
-                 * insert new direction or use an existing one
-                 */
-
-                const user = await user.createUser(newUser);
-                res.json({
-                    error: false,
-                    status: 'success',
-                    message: 'Usuario creado exitosamente.',
-                    user,
-                    user_id: user.id,
-                });
-            } else {
-                res.json({
-                    error: false,
-                    status: 'error',
-                    message: 'Usuario ya existente.',
-                });
-            }
-        } catch(error) {
-            console.log(error);
-            res.status(500).json({
-                error: true,
-                status: 'error',
-                message: 'Error 500: Internal server error.',
-            });
-        }
-    },
-
-    update: async (req, res) => {
-        const id = parseInt(req.params.id);
-        try {
-            const user = {
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                sexo: req.body.sexo,
-                username: req.body.username,
-                password: req.body.password,
-                fecha_modificado: moment().format('YYYY-MM-DD HH:mm:ss'),
-                role_id: parseInt(req.body.role_id),
-                image: req.body.image
-            }
-            const response = await user.updateUser(id, user);
-            console.log('controller');
-            console.log(response);
-        } catch (error) {
-            console.log(error);
-            return new Error(error);
-        }
-    },
-
-    delete: async (req, res) => {
-        const id = parseInt(req.params.id);
-        try {
-            const deleted = await user.delete(id);
-            console.log(deleted);
-            if (deleted) {
-                res.json({
-                    error: false,
-                    status: 'success',
-                    message: 'Usuario eliminado exitosamente.',
-                    user_id: deleted,
-                });
-            } else {
-                res.json({
-                    error: true,
-                    status: 'error',
-                    message: 'No se pudo eliminar el usuario.',
-                    user_id: deleted,
-                });
-            }
-        } catch (error) {
-            console.log(error);
-            res.json({
-                error: true,
-                status: 'error',
-                message: 'Error 500: Internal server error.',
-            });
-        }
-        
-    },
-
-    toggleUserStatus: async (req, res) => {
-        const id = parseInt(req.params.id);
-        try {
-            const status = { activo: req.body.activo }
-            const userId = await user.updateUser(id, status);
-            const user = await user.getById(userId);
-            if (moment(user[0].fecha_creacion).isValid()) {
-                user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                user[0].fecha_creacion = '';
-            }
-
-            if (moment(user[0].fecha_modificado).isValid()) {
-                user[0].fecha_modificado = moment(user[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                user[0].fecha_modificado = '';
-            }
-
-            res.json({
-                error: false,
-                status: 'success',
-                message: 'Usuario actualizado exitosamente.',
-                user: user[0],
-            })
-        } catch (error) {
-            console.log(error);
-            return new Error(error);
-        }
-    },
-
-    getAllRoles: async (req, res) => {
-        try {
-            const roles = await role.getAll();
-            res.json(roles);
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({
-                error: true,
-                message: 'Error 500: Internal server error',
-            });
-        }        
+          
+      });
+      res.json(users);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error: true,
+        message: 'Error 500: Internal server error',
+      });
     }
+  },
+
+  getById: async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+      const user = await user.getById(id);
+      if (moment(user[0].fecha_creacion).isValid()) {
+          user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+      } else {
+          user[0].fecha_creacion = '';
+      }
+
+      if (moment(user[0].fecha_modificado).isValid()) {
+          user[0].fecha_modificado = moment(user[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+      } else {
+          user[0].fecha_modificado = '';
+      }
+      res.json(user);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error: true,
+        message: 'Error 500: Internal server error',
+      });
+    }
+  },
+
+  create: async (req, res) => {
+    const form = new formidable.IncomingForm();
+
+    let newUser = {
+      firstname: null,
+      lastname: null,
+      username: null,
+      password: null,
+      sexo: null,
+      role_id: null,
+      image: null,
+      fecha_creacion: moment().format('YYYY-MM-DD HH:mm:ss')
+    }
+    
+    form.on('field', (field, value) => {
+      if(value == 'null') {
+        value = null;
+      } else {
+        parseInt(value);
+      }
+      
+      let exisitingUser = [];
+      switch (field) {
+        case 'firstname':
+          newUser[field] = value;
+          break;
+        case 'lastname':
+          newUser[field] = value;
+          break;
+        case 'username':
+          newUser[field] = value;
+          break;
+        case 'password':
+          newUser[field] = value;
+          break;
+        case 'role_id':
+          if(value){
+            newUser[field] = parseInt(value);
+          }
+          break;
+        case 'sexo':
+          newUser[field] = value;
+          break;
+        case 'image':
+          newUser[field] = value;
+          break;
+      
+        default:
+          break;
+      }
+    });
+
+    /**
+     * TODO:
+     * insert new email or use an existing one
+     * 
+     * insert new direction or use an existing one
+     */
+    form
+      .on('fileBegin', (field, file) => {
+        file.path = `${config._dirname}/client/static/users/${file.name}`;
+        newUser[field] = file.path;
+      })
+      .on('end', async () => {
+        try {
+          const exisitingUser = await user.getWhere(null, [`username = '${newUser.username}'`]);
+
+          if (exisitingUser.length === 0) {
+            const userId = await user.create(newUser);
+            const createdUser = await user.getById(userId);
+            res.json({
+              error: false,
+              status: 'success',
+              message: 'Usuario creado exitosamente.',
+              createdUser,
+              user_id: createdUser.id,
+            });
+          } else {
+            res.json({
+              error: true,
+              status: 'error',
+              message: 'Usuario ya existente.',
+            });
+          }
+        } catch (error) {
+          console.log(error);
+          res.status(500).json({
+            error: true,
+            status: 'error',
+            message: 'Error 500: Internal server error.',
+          });
+          return new Error(error);
+        }
+      })
+      .parse(req);
+  },
+
+  update: async (req, res) => {
+      const id = parseInt(req.params.id);
+      try {
+        const user = {
+          firstname: req.body.firstname,
+          lastname: req.body.lastname,
+          sexo: req.body.sexo,
+          username: req.body.username,
+          password: req.body.password,
+          fecha_modificado: moment().format('YYYY-MM-DD HH:mm:ss'),
+          role_id: parseInt(req.body.role_id),
+          image: req.body.image
+        }
+        const response = await user.updateUser(id, user);
+        console.log('controller');
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+        return new Error(error);
+      }
+  },
+
+  delete: async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+      const deleted = await user.delete(id);
+      console.log(deleted);
+      if (deleted) {
+        res.json({
+          error: false,
+          status: 'success',
+          message: 'Usuario eliminado exitosamente.',
+          user_id: deleted,
+        });
+      } else {
+        res.json({
+          error: true,
+          status: 'error',
+          message: 'No se pudo eliminar el usuario.',
+          user_id: deleted,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.json({
+        error: true,
+        status: 'error',
+        message: 'Error 500: Internal server error.',
+      });
+    }      
+  },
+
+  toggleUserStatus: async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+      const status = { activo: req.body.activo }
+      const userId = await user.updateUser(id, status);
+      const user = await user.getById(userId);
+      if (moment(user[0].fecha_creacion).isValid()) {
+        user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+      } else {
+        user[0].fecha_creacion = '';
+      }
+
+      if (moment(user[0].fecha_modificado).isValid()) {
+        user[0].fecha_modificado = moment(user[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+      } else {
+        user[0].fecha_modificado = '';
+      }
+
+      res.json({
+        error: false,
+        status: 'success',
+        message: 'Usuario actualizado exitosamente.',
+        user: user[0],
+      })
+    } catch (error) {
+      console.log(error);
+      return new Error(error);
+    }
+  },
+
+  getAllRoles: async (req, res) => {
+    try {
+      const roles = await role.getAll();
+      res.json(roles);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error: true,
+        message: 'Error 500: Internal server error',
+      });
+    }        
+  }
 }

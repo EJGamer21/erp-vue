@@ -59,14 +59,7 @@ class UserModel extends Database {
     }
 
     async createUser(data) {
-        try {
-            const userId = await this.create(data);
-            const user = await this.getById(userId);
-            return user[0];
-        } catch (error) {
-            console.log(error);
-            return new Error(error);
-        }
+        return this.create(data);
     }
 
     async deleteUser(id) {

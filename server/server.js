@@ -9,9 +9,13 @@ const routes = require('./routes');
 // App instance
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(cors());
+const middlewares = [
+    bodyParser.json(),
+    bodyParser.urlencoded({extended: false}),
+    cors()
+];
+
+app.use(middlewares);
 
 app.use('/', routes);
 

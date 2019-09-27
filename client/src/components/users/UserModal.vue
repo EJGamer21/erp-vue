@@ -1,32 +1,28 @@
 <template>
-  <!-- <transition name="modal">
-    <div class="modal-mask" @keyup.27="emitCloseModal" tabindex="0">
-      <div class="modal-wrapper" @click.self="emitCloseModal">
-        <div class="modal-container">
-          <div class="card bg-light my-3">
-            <div class="row no-gutters">
-              <div class="col-md-4">
-                <template v-if="user.image !== null">
-                  <img :src="user.image" class="card-img" alt="No image">
-                </template>
-                <template v-else>
-                  <img src="https://via.placeholder.com/800x800" class="card-img" alt="No image">
-                </template>
-              </div>
-              <div class="col-md-8">
-                <button title="Cerrar" class="float-right btn btn-light" @click="emitCloseModal">
-                  <span>
-                    <i class="fas fa-times"></i>
-                  </span>
-                </button>
-                <div class="card-body">
-                  <h3 class="card-title">
-                    <span>{{ user.firstname + ' ' + user.lastname}}</span>
-                    <div class="mb-2">
-                      <span class="badge badge-secondary">{{ user.rol }}</span>
-                    </div>
-                  </h3>
-
+  <transition name="modal">
+    <div class="card">
+      <div class="card-content">
+        <div class="media">
+          <div class="media-content">
+            <div class="content">
+              <div class="columns">
+                <div class="column is-4">
+                  <div class="card-image">
+                    <figure class="image is-4by3">
+                      <template v-if="user.image !== null">
+                        <img :src="user.image" class="card-img" alt="No image">
+                      </template>
+                      <template v-else>
+                        <img src="https://via.placeholder.com/800x800" class="card-img" alt="No image">
+                      </template>
+                    </figure>
+                  </div>
+                </div>
+                <div class="column is-8">
+                  <div class="title is-3">
+                    <span>{{ user.firstname }} {{ user.lastname }}</span>
+                    <b-tag type="is-dark">{{ user.rol }}</b-tag>
+                  </div>
                   <div class="row mb-2">
                     <div class="col">
                       <strong>ID:</strong>
@@ -86,60 +82,56 @@
                       </template>
                     </div>
                   </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="card-footer">
-              <div class="row">
-                <div class="col">
-                  <div class="float-left">
-                    <template v-if="user.activo == 1">
-                      <button
-                        title="Desactivar usuario"
-                        type="button"
-                        class="btn btn-outline-danger"
-                        @click="emitToggleUserStatus(user, user.index)"
-                      >
-                        <span>Desactivar</span>
-                        <i class="fas fa-user-times"></i>
-                      </button>
-                    </template>
-                    <template v-else>
-                      <button
-                        title="Activar usuario"
-                        type="button"
-                        class="btn btn-outline-success"
-                        @click="emitToggleUserStatus(user, user.index)"
-                      >
-                        <span>Activar</span>
-                        <i class="fas fa-user-check"></i>
-                      </button>
-                    </template>
-                    <button
-                      class="btn btn-danger"
-                      type="button"
-                      title="Borrar usuario"
-                      @click="emitRemoveUser(user, user.index)"
-                    >
-                      <span>Borrar&nbsp;</span>
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </div>
-                  <div class="float-right">
-                    <button class="btn btn-secondary" @click="emitCloseModal">
-                      <span>Cerrar</span>
-                    </button>
-                  </div>
-                </div>
+            <div class="card-foot">
+              <div class="is-pulled-left">
+                <b-button
+                  type="is-light"
+                  @click="$parent.close()"
+                >
+                  <span>Cerrar</span>
+                </b-button>
+              </div>
+              <div class="is-pulled-right">
+                <template v-if="user.activo == 1">
+                  <b-button
+                    title="Desactivar usuario"
+                    type="is-danger"
+                    outlined
+                    @click="emitToggleUserStatus(user, user.index)"
+                  >
+                    <span>Desactivar</span>
+                    <i class="fas fa-user-times"></i>
+                  </b-button>
+                </template>
+                <template v-else>
+                  <b-button
+                    title="Activar usuario"
+                    type="is-success"
+                    outlined
+                    @click="emitToggleUserStatus(user, user.index)"
+                  >
+                    <span>Activar</span>
+                    <i class="fas fa-user-check"></i>
+                  </b-button>
+                </template>
+                <b-button
+                  title="Borrar usuario"
+                  type="is-danger"
+                  @click="emitRemoveUser(user, user.index)"
+                >
+                  <span>Borrar&nbsp;</span>
+                  <i class="fas fa-times"></i>
+                </b-button>
+              </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </transition> -->
-  <b-modal :active.sync="isActive">
-  </b-modal>
+  </transition>
 </template>
 
 <script>
@@ -150,7 +142,7 @@ export default {
   props: {
     isActive: {
       type: Number,
-      required: true
+      required: false
     },
     user: {
       type: Object,
@@ -160,19 +152,19 @@ export default {
   computed: {
     ciudad() {
       let computedCiudad;
-      // if (this.user.direccion.ciudad == null) computedCiudad = null;
-      // else computedCiudad = this.user.direccion.ciudad;
+      if (this.user.ciudad == null) computedCiudad = null;
+      else computedCiudad = this.user.ciudad;
 
-      // if (this.user.direccion.provincia !== null && computedCiudad !== null) {
-      //   computedCiudad = computedCiudad + ", ";
-      // }
+      if (this.user.provincia !== null && computedCiudad !== null) {
+        computedCiudad = computedCiudad + ", ";
+      }
       return computedCiudad;
     },
 
     provincia() {
       let computedProvincia;
-      // if (this.user.direccion.provincia == null) computedProvincia = null;
-      // else computedProvincia = this.user.direccion.provincia;
+      if (this.user.provincia == null) computedProvincia = null;
+      else computedProvincia = this.user.provincia;
       return computedProvincia;
     }
   },

@@ -235,9 +235,7 @@ export default {
 
       try {
         const response = await axios.get(`http://localhost:8081/users/${query}`);
-        this.isEmpty = (!response.data.users)
-          ? true
-          : false;
+        this.isEmpty = (!response.data.users) ? true : false;
         this.users = response.data.users;
       } catch (error) {
         console.log(new Error(error));
@@ -260,19 +258,19 @@ export default {
             const newStatus = (user.activo === 1) ? 0 : 1;
             const response = await axios.patch('http://localhost:8081/users/' + user.id, {activo: newStatus});
             if (response.data.error === false) {
+              showAlert('Información', response.data.message, response.data.status, 2000);
               if (this.users[index].activo === 1) {
                 this.users[index].activo = 0;
               } else {
                 this.users[index].activo = 1;
               }
-              showAlert('Información', response.data.message, response.data.status, 2000);
             } else {
               showAlert('Error', response.data.message, response.data.status, 2000);
             }
           } catch (error) {
             if (error.response) {
               console.log(error.response);
-              // this.$toastr.error(error.response.data, 'Error', toastConfigs);
+              toastr(error.response.data, 'is-danger');
             }
           }
         }
@@ -304,11 +302,7 @@ export default {
           } catch (error) {
             if (error.response) {
               console.log(error.response);
-              // this.$toastr.error(
-              //   error.response.data.message,
-              //   'Error',
-              //   toastConfigs
-              // );
+              toastr(error.response.data.message, 'is-danger');
             }
           }
         }

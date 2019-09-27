@@ -26,7 +26,7 @@ module.exports = {
         }
           
       });
-      res.json(users);
+      return res.json({users});
     } catch (error) {
       console.log(error);
       res.status(500).json({
@@ -61,6 +61,68 @@ module.exports = {
     }
   },
 
+  getWhere: async (req, res) => {
+    if (req.params.query !== '') {
+      const query = req.params.query;
+      const fields = [
+        'usuarios.id',
+        'usuarios.firstname',
+        'usuarios.lastname',
+        'usuarios.username',
+        'usuarios.sexo',
+        'usuarios.fecha_creacion',
+        'usuarios.fecha_modificado',
+        'provincias.nombre',
+        'ciudades.nombre',
+        'email',
+        'rol'
+      ];
+
+      const condition = fields.reduce((accumulator, value, index) => {
+        if (index === 0) {
+          accumulator = `${value} LIKE '%${query}%'`;
+        }
+        accumulator = `${accumulator} `  + `OR ${value} LIKE '%${query}%'`;
+
+        return accumulator;
+      }, '');
+
+      try {
+        const users = await user.getWhere(null, [condition]);
+        // const result = users.filter(user => {
+        //   return Object.keys(user).forEach(key => {
+        //     key === query;
+        //   });
+        // })
+
+        users.forEach(user => {
+          if (moment(user.fecha_creacion).isValid()) {
+              user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+          } else {
+              user.fecha_creacion = '';
+          }
+
+          if (moment(user.fecha_modificado).isValid()) {
+              user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+          } else {
+              user.fecha_modificado = '';
+          }
+            
+        });
+
+        return res.json({
+          error: false,
+          status: 'success',
+          users
+        })
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      return this.getAll();
+    }
+  },
+
   create: async (req, res) => {
     const form = new formidable.IncomingForm();
 
@@ -81,8 +143,7 @@ module.exports = {
       } else {
         parseInt(value);
       }
-      
-      let exisitingUser = [];
+
       switch (field) {
         case 'firstname':
           newUser[field] = value;

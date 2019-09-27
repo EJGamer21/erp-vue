@@ -184,7 +184,9 @@ export default {
 
   computed: {
     isLoading() {
-      return (this.users && this.users.length === 0) ? true : false;
+      return (this.users && this.users.length === 0)
+        ? true
+        : false;
     }
   },
 
@@ -233,12 +235,12 @@ export default {
 
       try {
         const response = await axios.get(`http://localhost:8081/users/${query}`);
-        console.log(response);
-        if (response.data.users.length === 0) {
+        this.isEmpty = false;
+        if (!response.data.users) {
           setTimeout(function() {
-            this.users = false;
-            this.isLoading = false;
-          }, 500);
+            this.users = [false];
+          }, 2000);
+          return this.isEmpty = true;
         }
         this.users = response.data.users;
       } catch (error) {

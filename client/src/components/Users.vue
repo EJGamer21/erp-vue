@@ -5,7 +5,7 @@
 
     <div class="hr"></div>
 
-    <!-- <users-table @show-modal="showModal" @close-modal="closeModal"></users-table> -->
+    <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
     <b-modal :active.sync="isModalActive">
       <user-modal v-if="isModalActive" :user="user" @close-modal="closeModal"></user-modal>
     </b-modal>

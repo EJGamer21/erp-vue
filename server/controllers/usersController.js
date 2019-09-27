@@ -249,7 +249,6 @@ module.exports = {
     const id = parseInt(req.params.id);
     try {
       const deleted = await user.delete(id);
-      console.log(deleted);
       if (deleted) {
         res.json({
           error: false,
@@ -280,24 +279,24 @@ module.exports = {
     try {
       const status = { activo: req.body.activo }
       const userId = await user.updateUser(id, status);
-      const user = await user.getById(userId);
-      if (moment(user[0].fecha_creacion).isValid()) {
-        user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+      const updatedUser = await user.getById(userId);
+      if (moment(updatedUser[0].fecha_creacion).isValid()) {
+        updatedUser[0].fecha_creacion = moment(updatedUser[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
       } else {
-        user[0].fecha_creacion = '';
+        updatedUser[0].fecha_creacion = '';
       }
 
-      if (moment(user[0].fecha_modificado).isValid()) {
-        user[0].fecha_modificado = moment(user[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+      if (moment(updatedUser[0].fecha_modificado).isValid()) {
+        updatedUser[0].fecha_modificado = moment(updatedUser[0].fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
       } else {
-        user[0].fecha_modificado = '';
+        updatedUser[0].fecha_modificado = '';
       }
 
       res.json({
         error: false,
         status: 'success',
         message: 'Usuario actualizado exitosamente.',
-        user: user[0],
+        user: updatedUser[0],
       })
     } catch (error) {
       console.log(error);

@@ -235,13 +235,9 @@ export default {
 
       try {
         const response = await axios.get(`http://localhost:8081/users/${query}`);
-        this.isEmpty = false;
-        if (!response.data.users) {
-          setTimeout(function() {
-            this.users = [false];
-          }, 2000);
-          return this.isEmpty = true;
-        }
+        this.isEmpty = (!response.data.users)
+          ? true
+          : false;
         this.users = response.data.users;
       } catch (error) {
         console.log(new Error(error));

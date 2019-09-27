@@ -18,20 +18,31 @@
 
         <div class="level-right">
           <div class="level-item">
-            <b-field>
-              <b-input
-                type="search"
-                placeholder="Search..."
-                icon-pack="fas"
-                icon="search"
-              >
-              </b-input>
-              <p class="control">
-                <b-button type="is-primary">
-                  Search
-                </b-button>
-              </p>
-            </b-field>
+            <form
+              method="GET"
+              action="/users"
+              @submit.prevent
+            >
+              <b-field>
+                <b-input
+                  v-model="searchQuery"
+                  type="search"
+                  placeholder="Search..."
+                  icon-pack="fas"
+                  icon="search"
+                >
+                </b-input>
+                <p class="control">
+                  <b-button
+                    type="is-primary"
+                    native-type="submit"
+                    @click="filterTable()"
+                  >
+                    Search
+                  </b-button>
+                </p>
+              </b-field>
+            </form>
           </div>
         </div>
       </div>
@@ -166,7 +177,8 @@ export default {
     return {
       users: [],
       perPage: 10,
-      isEmpty: false
+      isEmpty: false,
+      searchQuery: ""
     };
   },
 
@@ -178,9 +190,8 @@ export default {
 
   async mounted() {
     try {
-      console.log(this.users);
       const response = await axios.get('http://localhost:8081/users');
-      this.users = response.data.sort((a, b) => {
+      this.users = response.data.users.sort((a, b) => {
         if (a.fecha_creacion < b.fecha_creacion) {
           return 1;
         }
@@ -215,6 +226,24 @@ export default {
 
     emitShowModal (user, index) {
       this.$emit('show-modal', user, index);
+    },
+
+    async filterTable () {
+      let query = this.searchQuery;
+
+      try {
+        const response = await axios.get(`http://localhost:8081/users/${query}`);
+        console.log(response);
+        if (response.data.users.length === 0) {
+          setTimeout(function() {
+            this.users = false;
+            this.isLoading = false;
+          }, 500);
+        }
+        this.users = response.data.users;
+      } catch (error) {
+        console.log(new Error(error));
+      }
     },
 
     async toggleUserStatus (user, index) {

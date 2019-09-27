@@ -2,9 +2,13 @@
   <section>
     <h1 class="is-size-1">Usuarios</h1>
     <user-form></user-form>
+
     <div class="hr"></div>
-    <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
-    <user-modal v-if="modalIsVisible" :user="user" @close-modal="closeModal"></user-modal>
+
+    <!-- <users-table @show-modal="showModal" @close-modal="closeModal"></users-table> -->
+    <b-modal :active.sync="isModalActive">
+      <user-modal v-if="isModalActive" :user="user" @close-modal="closeModal"></user-modal>
+    </b-modal>
   </section>
 </template>
 
@@ -22,7 +26,7 @@ export default {
   },
   data() {
     return {
-      modalIsVisible: false,
+      isModalActive: false,
       user: {}
     };
   },
@@ -30,11 +34,11 @@ export default {
     showModal(user, index) {
       this.user = user;
       this.user.index = index;
-      this.modalIsVisible = true;
+      this.isModalActive = true;
     },
 
     closeModal() {
-      this.modalIsVisible = false;
+      this.isModalActive = false;
     }
   }
 }

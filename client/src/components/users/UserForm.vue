@@ -124,7 +124,7 @@
               <b-field>
                 <b-radio-button
                   v-model="user.sexo"
-                  native-value="M"
+                  native-value="Masculino"
                   type="is-info"
                   required
                 >
@@ -137,7 +137,7 @@
 
                 <b-radio-button
                   v-model="user.sexo"
-                  native-value="F"
+                  native-value="Femenino"
                   type="is-danger"
                   required
                 >

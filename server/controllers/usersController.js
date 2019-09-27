@@ -88,28 +88,32 @@ module.exports = {
       }, '');
 
       try {
-        const users = await user.getWhere(null, [condition]);
+        let users = await user.getWhere(null, [condition]);
         // const result = users.filter(user => {
         //   return Object.keys(user).forEach(key => {
         //     key === query;
         //   });
         // })
 
-        users.forEach(user => {
-          if (moment(user.fecha_creacion).isValid()) {
-              user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
-          } else {
-              user.fecha_creacion = '';
-          }
-
-          if (moment(user.fecha_modificado).isValid()) {
-              user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
-          } else {
-              user.fecha_modificado = '';
-          }
-            
-        });
-
+        if (users.length === 0) {
+          users = null;
+        } else {
+          users.forEach(user => {
+            if (moment(user.fecha_creacion).isValid()) {
+                user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+            } else {
+                user.fecha_creacion = '';
+            }
+  
+            if (moment(user.fecha_modificado).isValid()) {
+                user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+            } else {
+                user.fecha_modificado = '';
+            }
+              
+          });
+        }
+        
         return res.json({
           error: false,
           status: 'success',

@@ -77,7 +77,7 @@
     <template slot="end">
       <b-navbar-item tag='div'>
         <template v-if="user.logged">
-          <b>{{ user_fullname }}</b>
+          <b>{{ user.firstname }} {{ user.lastname }}</b>
         </template>
 
         <template v-else>
@@ -165,30 +165,39 @@
 </template>
 
 <script>
+import { EventBus } from "@/EventBus.js";
+import { toastr } from "@/mixins/mixin";
+import axios from "axios";
+
+const server = 'http://localhost:8081';
+
 export default {
   name: 'NavBar',
   data() {
     return {
-      user: {
-        firstname: 'Enger',
-        lastname: 'Jimenez',
-        logged: false,
-      },
-    }
-  },
-  computed: {
-    user_fullname() {
-      return `${this.user.firstname} ${this.user.lastname}`;
+      user: {},
     }
   },
   methods: {
+    async login() {
+      let userData = new FormData();
+      userData.append('username', this.user.username);
+      userData.append('email', this.user.email);
+      userData.append('password', this.user.password);
+            
+      try {
+        const response = await axios.post(`${server}/users/login`, userData);
+        if (response.status === 200) {
+          this.user = response.data.user;
+          this.user.logged = true;
+        }
+      } catch(error) {
+        console.log(new Error(error));
+      }
+    },
     logout() {
       this.user.logged = false;
       console.log('logged out');
-    },
-    login() {
-      this.user.logged = true;
-      console.log('logged in');
     },
     signup() {
       console.log('signed in');

@@ -1,5 +1,5 @@
 <template>
-  <transition name="modal">
+  <!-- <transition name="modal">
     <div class="modal-mask" @keyup.27="emitCloseModal" tabindex="0">
       <div class="modal-wrapper" @click.self="emitCloseModal">
         <div class="modal-container">
@@ -137,7 +137,9 @@
         </div>
       </div>
     </div>
-  </transition>
+  </transition> -->
+  <b-modal :active.sync="isActive">
+  </b-modal>
 </template>
 
 <script>
@@ -146,6 +148,10 @@ import { EventBus } from "@/EventBus";
 export default {
   name: "user-modal",
   props: {
+    isActive: {
+      type: Number,
+      required: true
+    },
     user: {
       type: Object,
       required: true

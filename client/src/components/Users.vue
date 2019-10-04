@@ -1,21 +1,42 @@
 <template>
-  <section>
-    <h1 class="is-size-1">Usuarios</h1>
-    <user-form></user-form>
+  <div>
+    <div>
+      <h1 class="is-size-1">Usuarios</h1>
+    </div>
+    <user-form
+      :directions="directions"
+    ></user-form>
 
-    <div class="hr"></div>
+    <div class="lhr">
+      <div class="hr"></div>
+    </div>
 
-    <users-table @show-modal="showModal" @close-modal="closeModal"></users-table>
-    <b-modal :active.sync="isModalActive">
-      <user-modal v-if="isModalActive" :user="user" @close-modal="closeModal"></user-modal>
-    </b-modal>
-  </section>
+    <users-table
+      :provinces="directions.provinces"
+      :cities="directions.cities"
+      @show-modal="showModal"
+      @close-modal="closeModal"
+    ></users-table>
+
+    <transition name="modal">
+      <b-modal
+        :active.sync="isModalActive"
+        scroll="keep"
+        has-modal-card
+      >
+        <user-modal :user="user" :index="user.index"></user-modal>
+      </b-modal>
+    </transition>
+  </div>
 </template>
 
 <script>
 import UserForm from '@/components/users/UserForm';
 import UsersTable from '@/components/users/UsersTable.vue';
 import UserModal from '@/components/users/UserModal';
+import axios from 'axios';
+
+const server = `http://localhost:8081`;
 
 export default {
   name: "Users",
@@ -27,9 +48,26 @@ export default {
   data() {
     return {
       isModalActive: false,
-      user: {}
+      user: {},
+      directions: {
+        provinces: null,
+        cities: null
+      }
     };
   },
+
+  async mounted() {
+    try {
+      const provinces = await axios.get(`${server}/provinces`);
+      const cities = await axios.get(`${server}/cities`);
+
+      this.directions.provinces = provinces.data;
+      this.directions.cities = cities.data;
+    } catch(error) {
+      console.log(new Error(error));
+    }
+  },
+
   methods: {
     showModal(user, index) {
       this.user = user;
@@ -38,6 +76,7 @@ export default {
     },
 
     closeModal() {
+      this.user = {};
       this.isModalActive = false;
     }
   }

@@ -160,6 +160,7 @@
                     <b-select
                       placeholder="Seleccionar ciudad"
                       v-model="user.direction.city"
+                      expanded
                     >
                       <option
                         selected
@@ -193,6 +194,7 @@
                     <b-select
                       placeholder="Seleccionar rol"
                       v-model="user.role_id"
+                      expanded
                     >
                       <option
                         :value="null"
@@ -293,6 +295,9 @@ const server = `http://localhost:8081`;
 
 export default {
   name: "UserForm",
+  props: {
+    directions: Object,
+  },
   data() {
     return {
       user: {
@@ -317,10 +322,6 @@ export default {
         rol: null,
         role_id: null
       },
-      directions: {
-        provinces: [],
-        cities: []
-      },
       roles: [],
       passwordRequired: true,
       file: null,
@@ -329,21 +330,6 @@ export default {
   },
 
   computed: {
-    addresses() {
-      let cities = this.directions.cities.reduce((accumulator, value) => {
-        if (!accumulator[value.provincia_id]) {
-          accumulator[value.provincia_id] = [];
-        }
-
-        accumulator[value.provincia_id].push(value);
-        return accumulator;
-      }, {});
-
-      return this.directions.provinces.map(province => {
-        province.cities = cities[province.provincia_id] || [];
-        return province;
-      });
-    },
     cities() {
       return this.directions.cities.reduce((accumulator, value) => {
         if (!accumulator[value.provincia_id]) {
@@ -370,12 +356,7 @@ export default {
 
   async mounted() {
     try {
-      const provinces = await axios.get(`${server}/provinces`);
-      const cities = await axios.get(`${server}/cities`);
       const roles = await axios.get(`${server}/roles`);
-
-      this.directions.provinces = provinces.data;
-      this.directions.cities = cities.data;
       this.roles = roles.data.sort((a, b) => {
         if (a.rol > b.rol) {
           return 1;

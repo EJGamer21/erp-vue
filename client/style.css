@@ -5,8 +5,16 @@
 
 .hr {
   border: 0.5px solid #ccc;
-  margin: 10px 0;
+  margin: 20px 0;
   width: 100%;
+}
+
+.lhr {
+  padding: 3rem 0;
+}
+
+.shr {
+  padding: 1rem 0;
 }
 
 .modal-mask {

@@ -1,52 +1,236 @@
 <template>
   <div>
-    <section>
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <span>Showing&nbsp;</span>
-            <b-select v-model="perPage">
+    <div class="columns">
+      <div class="column is-narrow">
+        <div>
+          <span>Showing&nbsp;</span>
+          <div class="select">
+            <select v-model="perPage">
               <option value="5">5</option>
               <option value="10">10</option>
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="100">100</option>
-            </b-select>
-            <span>&nbsp;entries</span>
+            </select>
           </div>
+          <span>&nbsp;entries</span>
         </div>
+      </div>
 
-        <div class="level-right">
-          <div class="level-item">
-            <form
-              method="GET"
-              action="/users"
-              @submit.prevent
-            >
+      <div class="column">
+        <form
+          method="POST"
+          action="/users"
+          @submit.prevent
+        >
+          <div class="columns is-desktop is-multiline">
+            <div class="column is-offset-4">
+              <b-field grouped>
+                <b-field label="Activo">
+                  <b-switch
+                    v-model="filters.activo"
+                    :value="true"
+                    type="is-info"
+                  ></b-switch>
+                </b-field>
+
+                <b-field label="Sexo">
+                  <b-switch
+                    v-model="filters.sexo"
+                    :value="true"
+                    type="is-info"
+                  ></b-switch>
+                </b-field>
+              </b-field>
+
+              <div class="columns">
+                <div class="column">
+                  <b-field>
+                    <template slot="label">
+                        <p>Fecha creación</p>
+                        <b-switch
+                        v-model="filters.rangedFechaCreacion"
+                        :value="true"
+                        type="is-info"
+                        size="is-small"
+                      >
+                        Con rango
+                      </b-switch>
+                    </template>
+
+                    <b-datepicker
+                      v-model="filters.fechaCreacion"
+                      :first-day-of-week="1"
+                      :range="filters.rangedFechaCreacion"
+                      placeholder="Fecha creación"
+                      icon-pack="fas"
+                      icon="calendar-alt"
+                    >
+                      <b-button
+                        type="is-primary"
+                        @click="filters.fechaCreacion = new Date()"
+                      >
+                        <b-icon
+                          pack="fas"
+                          icon="calendar-day"
+                        ></b-icon>
+                        <span>Hoy</span>
+                      </b-button>
+
+                      <b-button
+                        type="is-danger"
+                        @click="filters.fechaCreacion = null"
+                      >
+                        <b-icon
+                          pack="fas"
+                          icon="times"
+                        ></b-icon>
+                        <span>Limpiar</span>
+                      </b-button>
+                    </b-datepicker>
+
+                  </b-field>
+                </div>
+
+                <div class="column">
+                  <b-field>
+                    <template slot="label">
+                        <p>Fecha modificado</p>
+                        <b-switch
+                          v-model="filters.rangedFechaModificado"
+                          :value="true"
+                          type="is-info"
+                          size="is-small"
+                        >
+                        Con rango
+                      </b-switch>
+                    </template>
+                    <b-datepicker
+                      v-model="filters.fechaModificado"
+                      :first-day-of-week="1"
+                      :range="filters.rangedFechaModificado"
+                      placeholder="Fecha modificado"
+                      icon-pack="fas"
+                      icon="calendar-alt"
+                    >
+
+                      <b-button
+                        type="is-primary"
+                        @click="filters.fechaModificado = new Date()"
+                      >
+                        <b-icon
+                          pack="fas"
+                          icon="calendar-day"
+                        ></b-icon>
+                        <span>Hoy</span>
+                      </b-button>
+
+                      <b-button
+                        type="is-danger"
+                        @click="filters.fechaModificado = null"
+                      >
+                        <b-icon
+                          pack="fas"
+                          icon="times"
+                        ></b-icon>
+                        <span>Limpiar</span>
+                      </b-button>
+                    </b-datepicker>
+
+                  </b-field>
+                </div>
+              </div>
+
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Provincia">
+                    <b-select
+                      v-model="filters.provincia"
+                      placeholder="Seleccionar provincia"
+                      icon-pack="fas"
+                      icon="map-marked-alt"
+                      expanded
+                    >
+                      <option
+                        :value="null"
+                        selected
+                      >
+                        Seleccionar provincia
+                      </option>
+
+                      <option
+                        v-for="provinces in provinces"
+                        :key="provinces.provincia_id"
+                        :value="provinces.provincia_id"
+                      >
+                        {{ provinces.nombre }}
+                      </option>
+                    </b-select>
+                  </b-field>
+                </div>
+
+                <div class="column">
+                  <b-field label="Ciudad">
+                    <b-select
+                      v-model="filters.ciudad"
+                      placeholder="Seleccionar ciudad"
+                      icon-pack="fas"
+                      icon="map-marker-alt"
+                      expanded
+                    >
+                      <option
+                        :value="null"
+                        selected
+                      >
+                        Seleccionar ciudad
+                      </option>
+
+                      <option
+                        v-for="city in cities"
+                        :key="city.ciudad_id"
+                        :value="city.ciudad_id"
+                      >
+                        {{ city.nombre }}
+                      </option>
+                    </b-select>
+                  </b-field>
+                </div>
+              </div>
+
               <b-field>
+                <template slot="label">
+                  <p>Filtrado</p>
+                  <label class="label">
+                    <p class="is-size-7 has-text-grey-dark">Por nombre, correo, usuario, etc.</p>
+                  </label>
+                </template>
                 <b-input
-                  v-model="searchQuery"
+                  v-model="filters.query"
                   type="search"
-                  placeholder="Search..."
+                  placeholder="Búsqueda"
                   icon-pack="fas"
                   icon="search"
                 >
                 </b-input>
-                <p class="control">
-                  <b-button
-                    type="is-primary"
-                    native-type="submit"
-                    @click="filterTable()"
-                  >
-                    Search
-                  </b-button>
-                </p>
               </b-field>
-            </form>
+
+              <b-field>
+                <b-button
+                  type="is-primary"
+                  size="is-medium"
+                  class="is-fullwidth"
+                  @click="filterTable()"
+                >
+                  Search
+                </b-button>
+              </b-field>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
-    </section>
+    </div>
+
+    <div class="shr"></div>
 
     <section>
       <b-table
@@ -109,7 +293,7 @@
               <b-button
                 title="Editar usuario"
                 type="is-info"
-                @click="emitEditUser(props.row)"
+                @click="emitEditUser(props.row, props.index)"
               >
                 <i class="fas fa-pencil-alt"></i>
               </b-button>
@@ -118,7 +302,7 @@
                   title="Desactivar usuario"
                   type="is-danger"
                   outlined
-                  @click="toggleUserStatus(props.row)"
+                  @click="toggleUserStatus(props.row, props.index)"
                 >
                   <i class="fas fa-user-times"></i>
                 </b-button>
@@ -128,7 +312,7 @@
                   title="Activar usuario"
                   type="is-success"
                   outlined
-                  @click="toggleUserStatus(props.row)"
+                  @click="toggleUserStatus(props.row, props.index)"
                 >
                   <i class="fas fa-user-check"></i>
                 </b-button>
@@ -136,7 +320,7 @@
               <b-button
                 title="Ver usuario"
                 type="is-dark"
-                @click="emitShowModal(props.row)"
+                @click="emitShowModal(props.row, props.index)"
               >
                 <i class="fas fa-eye"></i>
               </b-button>
@@ -173,12 +357,26 @@ import swal from 'sweetalert';
 
 export default {
   name: 'users-table',
+  props: {
+    provinces: Array,
+    cities: Array
+  },
   data() {
     return {
       users: [],
       perPage: 10,
       isEmpty: false,
-      searchQuery: ""
+      filters: {
+        query: '',
+        fechaCreacion: null,
+        fechaModificado: null,
+        rangedFechaCreacion: false,
+        rangedFechaModificado: false,
+        ciudad: null,
+        provincia: null,
+        activo: null,
+        sexo: null,
+      }
     };
   },
 
@@ -231,10 +429,20 @@ export default {
     },
 
     async filterTable () {
-      let query = this.searchQuery;
+      const formData = new FormData();
+      formData.append('search_query', this.filters.query);
+      formData.append('fecha_creacion', this.filters.fechaCreacion);
+      formData.append('fecha_modificado', this.filters.fechaModificado);
+      formData.append('ranged_fecha_creacion', this.filters.rangedFechaCreacion);
+      formData.append('ranged_fecha_modificado', this.filters.rangedFechaModificado);
+      formData.append('ciudad', this.filters.ciudad);
+      formData.append('provincia', this.filters.provincia);
+      formData.append('activo', this.filters.activo);
+      formData.append('sexo', this.filters.sexo);
 
       try {
-        const response = await axios.get(`http://localhost:8081/users/${query}`);
+        const response = await axios.get(`http://localhost:8081/users/filter`, formData);
+        console.log(response);
         this.isEmpty = (!response.data.users) ? true : false;
         this.users = response.data.users;
       } catch (error) {

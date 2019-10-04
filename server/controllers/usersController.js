@@ -5,13 +5,13 @@ const roleModel = require('../models/roleModel');
 const formidable = require('formidable');
 const moment = require('moment');
 const config = require('../configs/global_config');
-const user = new userModel();
-const role = new roleModel();
+const usersModel = new userModel();
+const rolesModel = new roleModel();
 
 module.exports = {
   getAll: async (req, res) => {
     try {
-      const users = await user.getAll();
+      const users = await usersModel.getAll();
       users.forEach(user => {
         if (moment(user.fecha_creacion).isValid()) {
             user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
@@ -39,7 +39,7 @@ module.exports = {
   getById: async (req, res) => {
     const id = parseInt(req.params.id);
     try {
-      const user = await user.getById(id);
+      const user = await usersModel.getById(id);
       if (moment(user[0].fecha_creacion).isValid()) {
           user[0].fecha_creacion = moment(user[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
       } else {
@@ -51,7 +51,7 @@ module.exports = {
       } else {
           user[0].fecha_modificado = '';
       }
-      res.json(user);
+      return res.json(user);
     } catch (error) {
       console.log(error);
       res.status(500).json({
@@ -62,6 +62,7 @@ module.exports = {
   },
 
   getWhere: async (req, res) => {
+    console.log(req.body);
     if (req.params.query !== '') {
       const query = req.params.query;
       const fields = [
@@ -88,12 +89,14 @@ module.exports = {
       }, '');
 
       try {
-        let users = await user.getWhere(null, [condition]);
+        let users = await usersModel.getWhere(null, [condition]);
         // const result = users.filter(user => {
         //   return Object.keys(user).forEach(key => {
         //     key === query;
         //   });
         // })
+
+        console.log(users);
 
         if (users.length === 0) {
           users = null;
@@ -116,7 +119,7 @@ module.exports = {
         
         return res.json({
           error: false,
-          status: 'success',
+          status: 'success',  
           users
         })
       } catch (error) {
@@ -191,11 +194,11 @@ module.exports = {
       })
       .on('end', async () => {
         try {
-          const exisitingUser = await user.getWhere(null, [`username = '${newUser.username}'`]);
+          const exisitingUser = await usersModel.getWhere(null, [`username = '${newUser.username}'`]);
 
           if (exisitingUser.length === 0) {
-            const userId = await user.create(newUser);
-            const createdUser = await user.getById(userId);
+            const userId = await usersModel.create(newUser);
+            const createdUser = await usersModel.getById(userId);
             res.json({
               error: false,
               status: 'success',
@@ -236,7 +239,7 @@ module.exports = {
           role_id: parseInt(req.body.role_id),
           image: req.body.image
         }
-        const response = await user.updateUser(id, user);
+        const response = await usersModel.updateUser(id, user);
         console.log('controller');
         console.log(response);
       } catch (error) {
@@ -248,7 +251,7 @@ module.exports = {
   delete: async (req, res) => {
     const id = parseInt(req.params.id);
     try {
-      const deleted = await user.delete(id);
+      const deleted = await usersModel.delete(id);
       if (deleted) {
         res.json({
           error: false,
@@ -278,8 +281,8 @@ module.exports = {
     const id = parseInt(req.params.id);
     try {
       const status = { activo: req.body.activo }
-      const userId = await user.updateUser(id, status);
-      const updatedUser = await user.getById(userId);
+      const userId = await usersModel.updateUser(id, status);
+      const updatedUser = await usersModel.getById(userId);
       if (moment(updatedUser[0].fecha_creacion).isValid()) {
         updatedUser[0].fecha_creacion = moment(updatedUser[0].fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
       } else {
@@ -306,7 +309,7 @@ module.exports = {
 
   getAllRoles: async (req, res) => {
     try {
-      const roles = await role.getAll();
+      const roles = await rolesModel.getAll();
       res.json(roles);
     } catch (error) {
       console.log(error);

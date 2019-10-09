@@ -441,7 +441,7 @@ export default {
       formData.append('sexo', this.filters.sexo);
 
       try {
-        const response = await axios.get(`http://localhost:8081/users/filter`, formData);
+        const response = await axios.post(`http://localhost:8081/users/filter`, formData);
         console.log(response);
         this.isEmpty = (!response.data.users) ? true : false;
         this.users = response.data.users;

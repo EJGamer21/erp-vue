@@ -62,72 +62,81 @@ module.exports = {
   },
 
   getWhere: async (req, res) => {
-    console.log(req.body);
-    if (req.params.query !== '') {
-      const query = req.params.query;
-      const fields = [
-        'usuarios.id',
-        'usuarios.firstname',
-        'usuarios.lastname',
-        'usuarios.username',
-        'usuarios.sexo',
-        'usuarios.fecha_creacion',
-        'usuarios.fecha_modificado',
-        'provincias.nombre',
-        'ciudades.nombre',
-        'email',
-        'rol'
-      ];
+    const form = new formidable.IncomingForm();
+    const fields = [
+      'usuarios.id',
+      'usuarios.firstname',
+      'usuarios.lastname',
+      'usuarios.username',
+      'usuarios.sexo',
+      'usuarios.fecha_creacion',
+      'usuarios.fecha_modificado',
+      'provincias.nombre',
+      'ciudades.nombre',
+      'email',
+      'rol'
+    ];
 
-      const condition = fields.reduce((accumulator, value, index) => {
-        if (index === 0) {
-          accumulator = `${value} LIKE '%${query}%'`;
-        }
-        accumulator = `${accumulator} `  + `OR ${value} LIKE '%${query}%'`;
+    form
+      .on('field', (field, value) => {
+      })
+      .on('end', () => {
+        console.log('Done');
+      })
+      .parse(req);
 
-        return accumulator;
-      }, '');
+    // const condition = fields.reduce((accumulator, value, index) => {
+    //   console.log(value);
+    //   if (index === 0) {
+    //     accumulator = `${value} LIKE '%${query}%'`;
+    //   }
+    //   accumulator = `${accumulator} `  + `OR ${value} LIKE '%${query}%'`;
 
-      try {
-        let users = await usersModel.getWhere(null, [condition]);
-        // const result = users.filter(user => {
-        //   return Object.keys(user).forEach(key => {
-        //     key === query;
-        //   });
-        // })
+    //   return accumulator;
+    // }, '');
 
-        console.log(users);
+      // return console.log(condition);
 
-        if (users.length === 0) {
-          users = null;
-        } else {
-          users.forEach(user => {
-            if (moment(user.fecha_creacion).isValid()) {
-                user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                user.fecha_creacion = '';
-            }
+      // try {
+      //   let users = await usersModel.getWhere(null, [condition]);
+      //   // const result = users.filter(user => {
+      //   //   return Object.keys(user).forEach(key => {
+      //   //     key === query;
+      //   //   });
+      //   // })
+
+      //   console.log(users);
+
+      //   if (users.length === 0) {
+      //     users = null;
+      //   } else {
+      //     users.forEach(user => {
+      //       if (moment(user.fecha_creacion).isValid()) {
+      //           user.fecha_creacion = moment(user.fecha_creacion).format('YYYY-MM-DD HH:mm:ss');
+      //       } else {
+      //           user.fecha_creacion = '';
+      //       }
   
-            if (moment(user.fecha_modificado).isValid()) {
-                user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                user.fecha_modificado = '';
-            }
+      //       if (moment(user.fecha_modificado).isValid()) {
+      //           user.fecha_modificado = moment(user.fecha_modificado).format('YYYY-MM-DD HH:mm:ss');
+      //       } else {
+      //           user.fecha_modificado = '';
+      //       }
               
-          });
-        }
+      //     });
+      //   }
         
-        return res.json({
-          error: false,
-          status: 'success',  
-          users
-        })
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      return this.getAll();
-    }
+      //   return res.json({
+      //     error: false,
+      //     status: 'success',  
+      //     users
+      //   })
+      // } catch (error) {
+      //   console.log(error);
+      // }
+    // } else {
+    //   return this.getAll();
+    // }
   },
 
   create: async (req, res) => {
